@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turkey road trip, 8–18 October</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#FAFAF7; --panel:#FFFFFF; --ink:#1B2430; --ink-2:#4D5A6A; --ink-3:#8793A2;
+  --line:#E3E6E8; --sea:#CFE3E6; --sea-deep:#B7D6DA; --land:#F1EDE2; --land-edge:#CFC7B5;
+  --route:#1E3F8A; --route-dim:#B9C3DE; --train:#5B6E9E;
+  --must:#B8322E; --worth:#2B8C8C; --opt:#8793A2;
+  --deadline-bg:#FBEDEC; --deadline-ink:#8E2522;
+  --tab-active:#1E3F8A; --tab-ink:#FFFFFF;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141719; --panel:#1C2023; --ink:#EEF0F2; --ink-2:#B4BCC6; --ink-3:#7E8893;
+    --line:#2B3136; --sea:#15323A; --sea-deep:#0F262C; --land:#262B2E; --land-edge:#3A4247;
+    --route:#7FA3F0; --route-dim:#36425A; --train:#9DB0D8;
+    --must:#F07E79; --worth:#5FC2C2; --opt:#7E8893;
+    --deadline-bg:#3A1F1E; --deadline-ink:#F5B5B2;
+    --tab-active:#7FA3F0; --tab-ink:#141719;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141719; --panel:#1C2023; --ink:#EEF0F2; --ink-2:#B4BCC6; --ink-3:#7E8893;
+  --line:#2B3136; --sea:#15323A; --sea-deep:#0F262C; --land:#262B2E; --land-edge:#3A4247;
+  --route:#7FA3F0; --route-dim:#36425A; --train:#9DB0D8;
+  --must:#F07E79; --worth:#5FC2C2; --opt:#7E8893;
+  --deadline-bg:#3A1F1E; --deadline-ink:#F5B5B2;
+  --tab-active:#7FA3F0; --tab-ink:#141719;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--route);outline-offset:2px;border-radius:4px}
+
+.app{display:grid;grid-template-rows:auto auto 1fr;min-height:100%}
+@media (min-width:960px){
+  .app{grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);grid-template-rows:auto 1fr;height:100%}
+  header{grid-column:1/-1}
+  .mapwrap{grid-row:2;grid-column:1;position:sticky;top:0;align-self:start;height:calc(100vh - 64px);display:flex;flex-direction:column}
+  .panel{grid-row:2;grid-column:2;border-left:1px solid var(--line)}
+}
+
+header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:14px 20px 10px;border-bottom:1px solid var(--line)}
+header h1{font-family:var(--serif);font-weight:600;font-size:22px;margin:0;letter-spacing:-.01em}
+header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var(--ink-2);margin-left:10px}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
+.legend .m::before{background:var(--must)} .legend .w::before{background:var(--worth)} .legend .o::before{background:var(--opt)}
+
+.mapwrap{position:relative;background:var(--sea)}
+#map{width:100%;height:58vh;min-height:320px}
+@media (min-width:960px){#map{flex:1;height:100%}}
+.leaflet-container{font-family:var(--sans);background:var(--sea)}
+.mapnote{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--ink-3);font-style:italic;font-family:var(--serif);z-index:500;background:color-mix(in srgb,var(--panel) 80%,transparent);padding:2px 6px;border-radius:4px}
+.nightpin{width:26px;height:26px;border-radius:50%;background:var(--panel);border:2.5px solid var(--route-dim);color:var(--ink-2);font:600 11px/21px var(--sans);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:all .2s}
+.nightpin.active{background:var(--route);border-color:var(--route);color:var(--tab-ink);transform:scale(1.12)}
+.poipin{width:12px;height:12px;border-radius:50%;background:var(--panel);border:2.5px solid var(--opt);box-shadow:0 1px 2px rgba(0,0,0,.3);opacity:.45;transition:opacity .2s,transform .2s}
+.poipin.m{border-color:var(--must);background:var(--must)}
+.poipin.w{border-color:var(--worth)}
+.poipin.o{border-color:var(--opt)}
+.poipin.alt{border-style:dashed;background:var(--panel)}
+.poipin.on{opacity:1;transform:scale(1.25)}
+.leaflet-popup-content-wrapper{background:var(--panel);color:var(--ink);border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.leaflet-popup-tip{background:var(--panel)}
+.leaflet-popup-content{margin:12px 14px;font-size:13.5px;line-height:1.45;max-width:260px}
+.pp-day{font-size:11.5px;color:var(--ink-3);margin-bottom:2px}
+.pp-name{font-weight:600;font-size:14.5px}
+.pp-tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:1px;color:#fff}
+.pp-tag.m{background:var(--must)} .pp-tag.w{background:var(--worth)} .pp-tag.o{background:var(--opt)}
+.pp-alt{font-size:11.5px;color:var(--ink-3);font-style:italic}
+.pp-d{color:var(--ink-2);margin-top:4px}
+.pp-cost{color:var(--ink-3);font-style:italic;font-size:12.5px;margin-top:4px}
+.pp-go{margin-top:8px;font-size:12.5px;color:var(--route);text-decoration:none}
+.leaflet-control-attribution{font-size:10px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--line);scrollbar-width:none;background:var(--bg)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink-2);background:var(--panel);display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;min-width:74px}
+.tab b{font-weight:600;color:var(--ink);font-size:13.5px}
+.tab small{font-size:11px;color:var(--ink-3)}
+.tab.active{background:var(--tab-active);border-color:var(--tab-active);color:var(--tab-ink)}
+.tab.active b,.tab.active small{color:var(--tab-ink)}
+
+.panel{overflow-y:auto;background:var(--panel)}
+.day{padding:18px 20px 36px;max-width:680px}
+.day h2{font-family:var(--serif);font-weight:600;font-size:26px;margin:0 0 2px;letter-spacing:-.01em;line-height:1.15}
+.day .sub{color:var(--ink-2);font-size:14px;margin:0 0 14px}
+.stay{margin:-6px 0 14px;padding-left:12px;border-left:3px solid var(--worth);color:var(--ink-2);font-size:13.5px;line-height:1.5}
+.deadline{background:var(--deadline-bg);color:var(--deadline-ink);border-radius:10px;padding:10px 14px;font-size:13.5px;line-height:1.45;margin-bottom:18px}
+.deadline b{font-weight:600}
+.slot{display:grid;grid-template-columns:62px 1fr;gap:0 14px;padding:12px 0;border-top:1px solid var(--line)}
+.slot:first-of-type{border-top:0}
+.slot .t{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:13px;padding-top:2px;line-height:1.35}
+.item{position:relative;padding-left:16px}
+.item::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+.item.m::before{background:var(--must)} .item.w::before{background:var(--worth)} .item.o::before{background:var(--opt)}
+.item.n::before{display:none}
+.item.n{padding-left:0;color:var(--ink-2)}
+.item .name{font-weight:600}
+.item .d{color:var(--ink-2);font-size:13.5px}
+.item .dur{color:var(--ink-3);font-size:12.5px;margin-left:6px;white-space:nowrap}
+.alts{margin-top:8px}
+.alts summary{cursor:pointer;font-size:13px;color:var(--route);list-style:none;display:inline-flex;align-items:center;gap:6px}
+.alts summary::-webkit-details-marker{display:none}
+.alts summary::before{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .2s}
+.alts[open] summary::before{transform:rotate(45deg)}
+.alts .item{margin-top:8px;font-size:14px}
+.alts .cost{display:block;color:var(--ink-3);font-size:12.5px;font-style:italic;margin-top:1px}
+.buffer{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2);font-style:italic;font-family:var(--serif);line-height:1.5}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
+.nav button{border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13.5px;color:var(--ink)}
+.nav button:disabled{opacity:.4;cursor:default}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Turkey by car<small>8 – 18 October 2026</small></h1>
+    <div class="legend"><span class="m">must-see</span><span class="w">worth it</span><span class="o">optional</span><span style="color:var(--ink-3)">dashed = alternative</span></div>
+  </header>
+
+  <div class="mapwrap">
+    <div id="map" role="region" aria-label="Route map"></div>
+    <div class="mapnote">Routes follow real roads when online. Solid dots are in the plan, dashed rings are alternatives, small grey points are towns you pass.</div>
+  </div>
+
+  <div class="panel">
+    <nav class="tabs" id="tabs" aria-label="Days"></nav>
+    <section class="day" id="day"></section>
+  </div>
+</div>
+
+<script>
+/* ---------- itinerary ---------- */
+// coordinates as [lon,lat]
+const C = {
+  ayt:[30.80,36.90], korkuteli:[30.20,37.07], oludeniz:[29.12,36.55], fethiye:[29.12,36.62],
+  patara:[29.31,36.26], kalkan:[29.41,36.26], kas:[29.64,36.20], demre:[29.98,36.26], finike:[30.15,36.30],
+  kumluca:[30.29,36.37], olympos:[30.47,36.40], antalya:[30.70,36.89], aspendos:[31.17,36.94], side:[31.39,36.77],
+  alanya:[32.00,36.54], anamur:[32.84,36.08], aydincik:[33.32,36.14], silifke:[33.93,36.38], kizkalesi:[34.15,36.46],
+  mersin:[34.63,36.80], tarsus:[34.90,36.92], adana:[35.32,37.00], osmaniye:[36.25,37.07], gaziantepbypass:[37.30,37.15],
+  urfa:[38.79,37.16], gobekli:[38.92,37.22], hilvan:[38.95,37.59], adiyaman:[38.28,37.76], kahta:[38.62,37.78],
+  cendere:[38.60,37.93], karadut:[38.70,37.95], nemrut:[38.74,37.98], halfeti:[37.87,37.25], nizip:[37.80,37.01],
+  gaziantep:[37.38,37.07], maras:[36.93,37.58], goksun:[36.50,38.03], pinarbasi:[36.39,38.72], kayseri:[35.48,38.72],
+  goreme:[34.83,38.64], uchisar:[34.80,38.63], derinkuyu:[34.73,38.37], urgup:[34.91,38.63], nevsehir:[34.71,38.63],
+  aksaray:[34.03,38.37], sultanhani:[33.55,38.25], konya:[32.49,37.87], eskisehir:[30.52,39.78], istanbul:[28.98,41.01],
+  heavenhell:[34.11,36.46], perge:[30.85,36.96], termessos:[30.46,36.98], kekova:[29.85,36.19], kayakoy:[29.09,36.57],
+  karahantepe:[39.28,37.06], harran:[39.03,36.87], birecik:[37.98,37.03], zeugma:[37.87,37.06], ihlara:[34.30,38.25],
+  avanos:[34.85,38.72], soganli:[34.95,38.35], kaymakli:[34.75,38.46], sille:[32.40,37.93], catalhoyuk:[32.83,37.67],
+  xanthos:[29.32,36.36], letoon:[29.29,36.33], saklikent:[29.40,36.46], stnicholas:[29.985,36.245], phaselis:[30.55,36.52],
+  antalyamuseum:[30.68,36.885], kaleici:[30.705,36.885], mamure:[32.84,36.08], anamurium:[32.80,36.03], taskopru:[35.33,36.985],
+  haleplibahce:[38.785,37.155], urfacastle:[38.783,37.148], baliklıgol:[38.785,37.150], urfabazaar:[38.79,37.153],
+  arsameia:[38.65,37.95], karakus:[38.57,37.80], kahtalunch:[38.62,37.78], adiyamanlunch:[38.28,37.76],
+  gaziantepcastle:[37.383,37.066], bakircilar:[37.381,37.062], culinary:[37.385,37.060], medusa:[37.386,37.058], bayazhan:[37.384,37.065], zeugmamuseum:[37.373,37.074], imam:[37.382,37.061],
+  zelve:[34.86,38.68], pasabag:[34.85,38.67], devrent:[34.90,38.68], mustafapasa:[34.90,38.57], ortahisar:[34.86,38.62], cavusin:[34.84,38.67],
+  rosevalley:[34.85,38.655], pigeonvalley:[34.81,38.635], lovevalley:[34.80,38.66], goremeoam:[34.85,38.642], redvalley:[34.86,38.665], goremeview:[34.83,38.645],
+  babadag:[29.15,36.55], amyntas:[29.11,36.62], paspatur:[29.115,36.625], kucukcakil:[29.64,36.195],
+  mevlana:[32.504,37.871], karatay:[32.493,37.875], incemin:[32.490,37.874], alaeddin:[32.492,37.874], etli:[32.503,37.872],
+  kadikoy:[29.025,40.990], galata:[28.974,41.0256], istiklal:[28.98,41.03], galatabridge:[28.973,41.020], karakoy:[28.975,41.023],
+  hagia:[28.980,41.0086], bluemosque:[28.9768,41.0054], cistern:[28.9777,41.0084], grandbazaar:[28.968,41.0106], topkapi:[28.983,41.0115],
+  suleymaniye:[28.964,41.016], spice:[28.970,41.0166], archmuseum:[28.981,41.0117], tiam:[28.975,41.006], hippodrome:[28.975,41.0057],
+  sillev:[32.40,37.93], olympos2:[30.47,36.40], kalkoy:[29.86,36.19], ucagiz:[29.85,36.20], sogutlucesme:[29.04,40.99], halkali:[28.77,41.02],
+  kizkalesibeach:[34.15,36.46], korykos:[34.14,36.465]
+};
+
+const T = {m:'must',w:'worth',o:'optional'};
+
+const days = [
+{ id:'thu8', stay:"Stay in Paspatur (the old quarter, walk to the fish market) or Karagözler, the quiet marina side 10 min away with harbour views.", tab:['Thu 8','Fethiye'], title:'Antalya → Fethiye', sub:'≈ 200 km · 3½ h padded · land 12:00, drive out of the airport by 14:00',
+  night:'fethiye', route:['ayt','korkuteli','fethiye','oludeniz'],
+  pois:[['oludeniz','Ölüdeniz','m'],['termessos','Termessos','w']],
+  deadline:'Sunset at the lagoon 18:30. Leave the airport by 14:00, lunch included.',
+  slots:[
+   {t:'12:00',p:{n:true,name:'Land Antalya (AYT). Passport and bags ~45 min.'}},
+   {t:'13:00',p:{n:true,name:'Collect the car, allow 30–45 min for the desk. Leave by 13:45.'}},
+   {t:'14:00',p:{tier:'n',at:'korkuteli',name:'Lunch near Korkuteli',d:'roadside gözleme or a lokanta in town',dur:'1 h'},
+     alts:[{tier:'n',name:'Eat at the airport before leaving',d:'saves the stop; lagoon at 17:00 instead'},
+           {tier:'w',at:'termessos',name:'Termessos',d:'Pisidian mountain city at 1,000 m, 30 min from the airport; theatre perched over a gorge, never conquered. Steep 20-min climb.',dur:'1½ h',cost:'costs tonight\u2019s lagoon sunset; the lagoon moves to Fri 10:00 in place of Patara'}]},
+   {t:'18:00',p:{tier:'m',at:'oludeniz',name:'Ölüdeniz Blue Lagoon',d:'turquoise lagoon behind a sand spit, the most photographed beach in Turkey. Walk the spit; water ~23 °C if you want a dip.',dur:'30 min'},
+     alts:[{tier:'o',at:'babadag',name:'Babadağ road viewpoint',d:'10 min up the hill, paragliders landing below; the lagoon from above if you\u2019re late'}]},
+   {t:'18:30',p:{tier:'m',at:'oludeniz',name:'Sunset at the lagoon'}},
+   {t:'19:30',p:{n:true,name:'Check in, Fethiye (Paspatur area).'}},
+   {t:'20:00',p:{tier:'w',at:'paspatur',name:'Paspatur and the fish market',d:'old quarter; buy fish at the central stall, a restaurant around it grills it for a small fee'},
+     alts:[{tier:'o',at:'amyntas',name:'Amyntas rock tombs',d:'4th-century BC Lycian tomb carved into the cliff above town, lit at night; walkable after dinner',dur:'30 min'}]}
+  ],
+  buffer:'Buffer 30 min. If the rental pickup runs past 14:00, eat at the airport and skip Korkuteli.'},
+
+{ id:'fri9', stay:"Stay in Kaleiçi, inside the old walls, so the evening is on foot. If you want a sea view instead, Konyaaltı is 10 min west, but you lose the old town.", tab:['Fri 9','Antalya'], title:'Fethiye → Antalya, the Lycian coast', sub:'≈ 300 km · 5½ h padded',
+  night:'antalya', route:['fethiye','patara','kalkan','kas','demre','finike','kumluca','olympos','antalya'],
+  pois:[['patara','Patara','w'],['kas','Kaş','m'],['demre','Myra','m'],['kekova','Kekova','w'],['olympos','Olympos','w'],['kayakoy','Kayaköy','o']],
+  deadline:'Myra closes ~17:00. Be in Demre by 16:00, so leave Kaş by 15:15.',
+  slots:[
+   {t:'10:00',p:{n:true,name:'Leave Fethiye.'}},
+   {t:'10:30–12:00',p:{tier:'w',at:'patara',name:'Patara',d:'ruins of the Lycian capital (theatre, colonnaded street, parliament) beside an 18 km empty dune beach; one ticket. Best swim of the trip.',dur:'1 h'},
+     alts:[{tier:'o',at:'kayakoy',name:'Kayaköy',d:'Greek village emptied in 1923, 350 roofless stone houses, two churches; 20 min from Fethiye',dur:'45 min'},
+           {tier:'o',at:'xanthos',name:'Xanthos and Letoon',d:'Lycian capital and its sanctuary of Leto, one UNESCO listing; most finds are in London, so atmospheric not spectacular',dur:'45 min, on the road'},
+           {tier:'o',at:'saklikent',name:'Saklıkent Gorge',d:'18 km canyon, wade through icy water between 300 m walls; 30 min off route',dur:'1½ h',cost:'costs the Kaş walk'}]},
+   {t:'12:30–15:15',p:{tier:'m',at:'kas',name:'Kaş',d:'whitewashed harbour town, bougainvillea lanes, a Lycian sarcophagus in the main street. Lunch on the harbour (1 h), then walk (1 h).',dur:'2 h'},
+     alts:[{tier:'n',name:'Lunch only if behind, leave by 14:15'},
+           {tier:'w',at:'kalkoy',name:'Kekova sunken city and Kaleköy',d:'boat over the half-submerged Lycian town and the castle village of Kaleköy with sarcophagi in the water; boats from Üçağız, 20 min off the road after Kaş',dur:'2 h boat + 40 min',cost:'costs Patara and shortens Kaş to lunch; Myra still fits'}]},
+   {t:'16:00–17:00',p:{tier:'m',at:'demre',name:'Myra, Demre',d:'honeycomb of Lycian rock tombs in a cliff above a Roman theatre; the most dramatic tomb site in Lycia',dur:'45 min'},
+     alts:[{tier:'o',at:'stnicholas',name:'St Nicholas Church',d:'Byzantine church of the original Santa Claus, 5 min from Myra; add if ahead',dur:'30 min'}]},
+   {t:'17:00',p:{n:true,name:'Drive to Antalya, 2½–3 h on the D400 coast road behind trucks.'},
+     alts:[{tier:'w',at:'olympos',name:'Olympos / Çıralı',d:'Lycian ruins in a jungle valley running to a beach; Chimaera eternal flames on the hillside above, best after dark; 30 min off route',dur:'1½ h',cost:'Antalya at 21:00'},
+           {tier:'o',at:'phaselis',name:'Phaselis',d:'three Roman harbours in a pine forest on the sea; 10 min off route',dur:'45 min',cost:'Antalya at 20:00'}]},
+   {t:'19:30',p:{n:true,name:'Check in, Kaleiçi.'}},
+   {t:'20:00',p:{tier:'w',at:'kaleici',name:'Kaleiçi',d:'walled Ottoman old town: Hadrian\u2019s Gate (130 AD), the Fluted Minaret, the Roman harbour. Dinner.'}}
+  ],
+  buffer:'Buffer 45 min. Antalya ring-road traffic 17:30–19:30 is real; expect it.'},
+
+{ id:'sat10', stay:"Kızkalesi is small: take a seafront hotel between the two castles so the view is yours at breakfast. Narlıkuyu, 10 min west, is quieter with fish restaurants on the cove.", tab:['Sat 10','Kızkalesi'], title:'Antalya → Kızkalesi, the long coast', sub:'≈ 480 km · 8 h padded · the longest day',
+  night:'kizkalesi', route:['antalya','aspendos','side','alanya','anamur','aydincik','silifke','kizkalesi'],
+  pois:[['aspendos','Aspendos','m'],['side','Side','w'],['perge','Perge','w'],['alanya','Alanya','w'],['anamur','Anamur','o']],
+  deadline:'No fixed time, but to eat in Kızkalesi arrive before 21:30: leave Side by 14:00, fuel in Alanya and keep moving.',
+  slots:[
+   {t:'10:00',p:{n:true,name:'Leave Antalya.'}},
+   {t:'10:45–11:30',p:{tier:'m',at:'aspendos',name:'Aspendos',d:'the best-preserved Roman theatre in the world (2nd century AD, 15,000 seats, stage building intact), still used for concerts',dur:'45 min'},
+     alts:[{tier:'w',at:'antalyamuseum',name:'Antalya Archaeology Museum',d:'one of Turkey\u2019s best: the Perge sculpture gallery, sarcophagi, the Elmalı treasure; 10:00–11:15 in the city before leaving',dur:'1¼ h',cost:'Aspendos at 12:15, Side becomes lunch only, Kızkalesi ~21:30'},
+           {tier:'w',at:'perge',name:'Perge',d:'large Roman city 15 min from Antalya: colonnaded street with its water channel, stadium',dur:'1 h',cost:'then Aspendos, and lunch only in Side'}]},
+   {t:'12:00–14:00',p:{tier:'w',at:'side',name:'Side',d:'Roman city on a peninsula: Temple of Apollo at the harbour, theatre, agora, a resort village around it. Walk (1 h), lunch by the harbour (1 h).',dur:'2 h'},
+     alts:[{tier:'w',at:'alanya',name:'Alanya Castle and Red Tower',d:'Seljuk fortress on a 250 m peninsula, 6 km of walls; the 13th-century octagonal Red Tower and medieval shipyard at the harbour',dur:'1½ h + lunch',cost:'coast road starts 1½ h later, Kızkalesi ~22:00; only with a quick Aspendos'}]},
+   {t:'14:00',p:{n:true,name:'Drive east. Fuel in Alanya ~15:30; stations are sparse after.'}},
+   {t:'16:00–20:30',p:{tier:'w',at:'aydincik',name:'The D400 coast road',d:'Alanya → Anamur → Silifke: cliffs, banana plantations, empty coves. Slow, twisty, trucks. The road is the sight.'}},
+   {t:'18:15',p:{tier:'o',at:'mamure',name:'Mamure Castle, Anamur',d:'13th-century castle with 39 towers right on the beach; photo stop at dusk',dur:'15 min'},
+     alts:[{tier:'o',at:'anamurium',name:'Anamurium',d:'ghost Roman and Byzantine city on a headland 5 min before Anamur: baths, necropolis, nobody there',dur:'45 min',cost:'only if you reach it before 17:45; Kızkalesi ~21:45'}]},
+   {t:'21:00',p:{n:true,name:'Arrive Kızkalesi, check in. Seafront restaurants serve until 23:00.'}}
+  ],
+  buffer:'Buffer is built into the padded coast time. Behind at Alanya? Skip Mamure. After 16:30 at Alanya? Sleep in Anamur instead and leave at 10 tomorrow; Sunday then loses the Adana lunch but still makes Urfa.'},
+
+{ id:'sun11', stay:"Stay in the old town around Balıklıgöl, in a konak (restored stone mansion) so the pools and bazaar are a 5-min walk. Karaköprü, the new town 10 min north, has modern hotels but you’d drive in for the evening.", tab:['Sun 11','Şanlıurfa'], title:'Kızkalesi → Şanlıurfa', sub:'≈ 430 km · 6 h padded',
+  night:'urfa', route:['kizkalesi','mersin','tarsus','adana','osmaniye','gaziantepbypass','urfa'],
+  pois:[['heavenhell','Heaven & Hell','w'],['tarsus','Tarsus','o'],['adana','Adana','w'],['urfa','Urfa','m']],
+  deadline:'Urfa museum last entry ~16:30 (assume winter hours). Parked by 16:15, so leave Adana by 13:00 and Kızkalesi at 10:00 sharp.',
+  slots:[
+   {t:'09:00',p:{tier:'w',at:'kizkalesibeach',name:'Breakfast with Maiden\u2019s Castle',d:'12th-century Armenian castle on an islet 300 m offshore, Korykos Castle on the beach opposite. Swim before breakfast; the beach is at the hotels.'}},
+   {t:'10:00',p:{n:true,name:'Leave.'},
+     alts:[{tier:'w',at:'heavenhell',name:'Heaven & Hell sinkholes',d:'two huge collapsed caverns 10 min away; steps down into Heaven to a Byzantine chapel at a cave mouth',dur:'1 h',cost:'takes this slot only if you give up the Adana sit-down lunch and eat at a motorway stop'}]},
+   {t:'11:45–12:45',p:{tier:'w',at:'taskopru',name:'Adana, kebab lunch',d:'Adana kebab (spicy minced lamb on a flat skewer) with şalgam. Yüzevler, Onbaşılar or Kazancılar. The Roman Taşköprü bridge and the huge Sabancı mosque are a 15-min walk after.',dur:'1 h'},
+     alts:[{tier:'o',at:'tarsus',name:'Tarsus',d:'St Paul\u2019s birthplace: Roman Cleopatra\u2019s Gate, St Paul\u2019s well, an Ottoman street; 10 min off the motorway',dur:'45 min',cost:'then a 30-min kebab in Adana'}]},
+   {t:'13:00',p:{n:true,name:'O-52 motorway east, 3 h padded. The Gaziantep bypass can jam around 15:00.'}},
+   {t:'16:15–17:30',p:{tier:'m',at:'urfa',name:'Şanlıurfa Archaeology Museum',d:'where Göbekli Tepe makes sense: original T-pillars, animal statues, and Urfa Man, the 11,000-year-old oldest life-size human statue found anywhere',dur:'1¼ h'},
+     alts:[{tier:'o',at:'urfacastle',name:'Urfa Castle (if the museum is closed)',d:'on the cliff above Balıklıgöl, two Corinthian columns on top, the best view of the old town',dur:'30 min climb'},
+           {tier:'o',at:'haleplibahce',name:'Haleplibahçe Mosaic Museum',d:'Amazon-queen and Orpheus mosaics under a dome, next door; add if the main museum runs fast',dur:'30 min'}]},
+   {t:'17:45–19:15',p:{tier:'m',at:'baliklıgol',name:'Balıklıgöl',d:'pools of sacred carp among Ottoman mosques; legend says Nimrod\u2019s fire for Abraham became the water and the embers the fish. Abraham\u2019s cave in the Mevlid-i Halil mosque alongside. Sunset ~18:00; stay until it is lit.'}},
+   {t:'19:30',p:{tier:'m',at:'urfabazaar',name:'Urfa bazaar and dinner',d:'coppersmiths, isot pepper, pistachios; tea and backgammon in the Gümrük Han courtyard. Urfa kebab (the mild one), ciğer kebab, şıllık pancakes.'},
+     alts:[{tier:'o',at:'urfabazaar',name:'Sıra gecesi',d:'traditional evening of live music and çiğ köfte in a restaurant; instead of a normal dinner, book ahead'}]}
+  ],
+  buffer:'Buffer 30 min; the tightest day. If the museum is missed it can only be done tomorrow 09:00–10:00 by leaving the hotel at 09:00, otherwise let it go.'},
+
+{ id:'mon12', stay:"Karadut village, the last settlement below the summit (Karadut Pension, Euphrat, Nemrut Kervansaray); basic rooms, dinner included, 30 min from the top. Kâhta town has proper hotels but is 1 h from the summit, which breaks the sunset timing.", tab:['Mon 12','Nemrut'], title:'Göbekli Tepe → Nemrut Dağı', sub:'≈ 220 km · 3½ h padded',
+  night:'karadut', route:['urfa','gobekli','hilvan','adiyaman','kahta','cendere','karadut','nemrut'],
+  pois:[['gobekli','Göbekli Tepe','m'],['nemrut','Nemrut','m'],['cendere','Cendere','w'],['karahantepe','Karahantepe','o'],['harran','Harran','o']],
+  deadline:'Summit by 17:45 for the 18:05 sunset. Leave Karadut 17:00, arrive Karadut 16:30, leave lunch by 15:00, sit down to lunch by 14:15, leave Göbekli Tepe by 12:30.',
+  slots:[
+   {t:'10:00',p:{n:true,name:'Leave; the site is 20 min from the centre.'}},
+   {t:'10:30–12:30',p:{tier:'m',at:'gobekli',name:'Göbekli Tepe',d:'the oldest monumental site built by humans (c. 9500 BC, 6,000 years before Stonehenge): rings of carved T-pillars with foxes, boars and vultures, raised by hunter-gatherers before farming existed. Roofed excavation, boardwalk, shuttle from the car park. Timed ticket.',dur:'1½–2 h'},
+     alts:[{tier:'o',at:'karahantepe',name:'Karahantepe instead',d:'the sister site 1 h southeast: human-figure pillars, newly opened, almost nobody there',dur:'1 h + 2 h driving',cost:'only instead of Göbekli Tepe, never in addition; otherwise Nemrut is impossible'}]},
+   {t:'12:30',p:{n:true,name:'Drive via Adıyaman, 1¾ h padded.'},
+     alts:[{tier:'o',at:'harran',name:'Harran',d:'mud-brick beehive houses and the ruins of the first Islamic university, 45 min south of Urfa',dur:'1 h + 1½ h driving',cost:'costs Cendere and makes the sunset tight; not recommended'}]},
+   {t:'14:15–15:00',p:{tier:'n',at:'adiyamanlunch',name:'Lunch in Adıyaman',d:'eat here, not Kâhta; it is 30 min earlier on the road. The one shortened lunch of the trip, forced by the sunset.',dur:'45 min'},
+     alts:[{tier:'n',name:'Picnic bought in Urfa, eaten at Cendere bridge',d:'saves 45 min and buys Arsameia'}]},
+   {t:'15:45',p:{tier:'w',at:'cendere',name:'Cendere Bridge',d:'2nd-century Roman bridge, intact, three of its four columns standing; beside the road',dur:'15 min'},
+     alts:[{tier:'o',at:'karakus',name:'Karakuş Tumulus',d:'burial mound of Antiochus\u2019s wife and daughter with an eagle column, 10 min before Cendere',dur:'15 min'},
+           {tier:'o',at:'arsameia',name:'Arsameia',d:'Commagene summer capital: relief of Hercules shaking the king\u2019s hand, a long Greek inscription at a tunnel mouth; short climb, 10 min off route',dur:'45 min',cost:'fits only with the picnic option'}]},
+   {t:'16:30',p:{n:true,name:'Check in, Karadut guesthouse. Warm layers: the summit is windy and ~5 °C at dusk.'}},
+   {t:'17:00',p:{n:true,name:'Drive to the summit car park (30 min, steep), then a 20-min climb.'}},
+   {t:'18:05',p:{tier:'m',at:'nemrut',name:'Nemrut Dağı sunset, west terrace',d:'Antiochus I\u2019s 1st-century BC tomb: a 50 m gravel tumulus on a 2,134 m summit flanked by 8–9 m seated gods whose toppled heads stare out over the mountains. UNESCO.'}},
+   {t:'19:30',p:{n:true,name:'Guesthouse dinner, usually the only option.'}}
+  ],
+  buffer:'Buffer 15 min; the tightest afternoon of the trip. Leaving Göbekli Tepe after 12:45: cut lunch to 30 min. After 13:15: picnic, skip Cendere. The guesthouse feeds you at night, so a thin lunch is survivable.'},
+
+{ id:'tue13', stay:"Stay in the Şahinbey centre around the castle and bazaar (Anadolu Evleri and other stone-house hotels) so dinner and the morning bazaar are on foot. Gazimuhtarpaşa Bulvarı has the modern chains, a 10-min taxi.", tab:['Tue 13','Gaziantep'], title:'Nemrut → the Euphrates → Gaziantep', sub:'≈ 280 km · 4½ h padded · the slack day',
+  night:'gaziantep', route:['karadut','kahta','adiyaman','halfeti','nizip','gaziantep'],
+  pois:[['halfeti','Halfeti','w'],['birecik','Birecik','o'],['zeugma','Zeugma site','o'],['gaziantep','Gaziantep','m']],
+  deadline:'Nothing fixed. Bazaar shops close ~19:00, so arrive Gaziantep by 17:15 and leave Halfeti by 15:15.',
+  slots:[
+   {t:'06:50',p:{tier:'o',at:'nemrut',name:'Nemrut sunrise, east terrace (breaks the 10:00 rule)',d:'the classic time to see it; leave the guesthouse at 05:45, back by 08:00. Only if sunset was clouded out.'}},
+   {t:'10:00',p:{n:true,name:'Leave; 2½ h padded to Halfeti, mountain road then rural.'}},
+   {t:'12:30–15:00',p:{tier:'w',at:'halfeti',name:'Halfeti and Rumkale',d:'Euphrates village half-drowned by the Birecik dam in 2000, a minaret rising from the water. Boat upstream to Rumkale, a Roman and Armenian fortress on a rock (1½ h; boats go when full, a private boat is cheap). Lunch by the water (1 h).',dur:'2½ h'},
+     alts:[{tier:'o',at:'birecik',name:'Birecik',d:'breeding colony of the bald ibis, one of the rarest birds on earth; 20 min from Halfeti',dur:'45 min',cost:'shorten the boat to 1 h'},
+           {tier:'o',at:'zeugma',name:'Zeugma archaeological site, Belkıs',d:'the actual Roman city the mosaics came from, villas under a protective roof, half under the lake; 45 min east of Gaziantep',dur:'1 h',cost:'instead of Halfeti; Gaziantep at 15:30'}]},
+   {t:'15:00',p:{n:true,name:'Drive to Gaziantep, 1¾ h padded; city traffic from 16:30.'}},
+   {t:'16:45',p:{n:true,name:'Check in.'}},
+   {t:'17:15–18:30',p:{tier:'w',at:'bakircilar',name:'Bakırcılar Çarşısı and Zincirli Bedesten',d:'the coppersmiths\u2019 bazaar, hammering still audible, and the covered market beside it. Menengiç (pistachio) coffee at Tahmis Kahvesi, a coffee house running since 1635.',dur:'1¼ h'},
+     alts:[{tier:'o',at:'gaziantepcastle',name:'Gaziantep Castle',d:'6th-century Byzantine citadel on a mound; interior closed since the 2023 earthquake, exterior and panorama only; on the way to the bazaar',dur:'20 min'},
+           {tier:'o',at:'culinary',name:'Culinary Museum (Emine Göğüş)',d:'Antep cooking in an old house',dur:'30 min'},
+           {tier:'o',at:'medusa',name:'Medusa Glass Museum',d:'ancient glass in a stone mansion',dur:'30 min'},
+           {tier:'o',at:'bayazhan',name:'Bayazhan City Museum',d:'Gaziantep\u2019s history in a restored han next to the castle',dur:'30 min'}]},
+   {t:'18:30',p:{tier:'m',at:'imam',name:'Gaziantep food evening',d:'baklava and katmer (pistachio pastry) at İmam Çağdaş; dinner at Çulcuoğlu or Halil Usta: Antep kebab, yuvalama, pistachio everything. The food capital of Turkey.'}}
+  ],
+  buffer:'Buffer 1 h. If Nemrut was clouded and you did sunrise, everything shifts 30 min; still fine.'},
+
+{ id:'wed14', stay:"Göreme centre, on the slope toward Aydınlı, for a cave hotel with a terrace facing the balloons. Uçhisar is the alternative: quieter, the best panorama in Cappadocia, 10 min drive from everything.", tab:['Wed 14','Göreme'], title:'Gaziantep → Cappadocia', sub:'≈ 400 km · 5 h padded',
+  night:'goreme', route:['gaziantep','maras','goksun','pinarbasi','kayseri','goreme'],
+  pois:[['gaziantep','Zeugma Museum','m'],['maras','Kahramanmaraş','o'],['uchisar','Uçhisar','m'],['goreme','Red Valley','m']],
+  deadline:'Red Valley sunset 18:15. At the viewpoint by 17:45, leave lunch by 14:45, leave Gaziantep by 11:45. Uçhisar only fits if you are in Göreme by 17:00.',
+  slots:[
+   {t:'09:00',p:{tier:'n',name:'Hotel breakfast, fast'},
+     alts:[{tier:'w',at:'imam',name:'Beyran at Metanet, or katmer at Orkide / Zekeriya Usta',d:'lamb and rice soup, the local breakfast; adds 20 min, then Zeugma is 1¼ h'}]},
+   {t:'10:00–11:30',p:{tier:'m',at:'zeugmamuseum',name:'Zeugma Mosaic Museum',d:'the largest mosaic museum in the world: Roman villa floors from Zeugma, the Gypsy Girl, the Mars statue',dur:'1½ h'}},
+   {t:'11:45',p:{n:true,name:'Leave. Motorway via Kahramanmaraş, 4½ h padded; the Kahramanmaraş junction and the Kayseri approach can slow.'}},
+   {t:'13:30–14:30',p:{tier:'n',at:'maras',name:'Lunch in Kahramanmaraş',d:'town centre 10 min off the motorway; chewy Maraş dondurma ice cream for dessert',dur:'1 h'},
+     alts:[{tier:'n',name:'Motorway service-area lunch',d:'saves 20 min and makes Uçhisar possible tonight'}]},
+   {t:'17:15',p:{n:true,name:'Arrive Göreme. Drop bags only if the hotel is on the way; otherwise go straight on.'}},
+   {t:'17:15–17:45',p:{tier:'n',name:'Default: drive straight to the viewpoint, take a table, order tea'},
+     alts:[{tier:'m',at:'uchisar',name:'Uçhisar Castle',d:'a 60 m rock riddled with rooms and tunnels, the highest point in Cappadocia; climb for the panorama',dur:'45 min',cost:'only if you are in Göreme by 17:00 (service-area lunch); otherwise it moves to Thu 10:00'}]},
+   {t:'18:00',p:{tier:'m',at:'redvalley',name:'Red Valley (Kızılçukur) viewpoint',d:'the rock turns deep red; cafés on the rim. Sunset ~18:15.'},
+     alts:[{tier:'o',at:'lovevalley',name:'Love Valley viewpoint',d:'the phallic fairy chimneys, 5 min from Göreme; use it if the Red Valley car park is full'}]},
+   {t:'19:30',p:{n:true,name:'Dinner in Göreme: testi kebab, a stew sealed in a clay pot and cracked at the table. Order ahead.'}}
+  ],
+  buffer:'Buffer 30 min. The 1 h lunch is what pushes Uçhisar to Thursday; take the service-area lunch if you would rather see it tonight.'},
+
+{ id:'thu15', stay:"Same hotel as Wednesday.", tab:['Thu 15','Göreme'], title:'Cappadocia', sub:'local driving, ~100 km',
+  night:'goreme', route:['goreme','urgup','derinkuyu','goreme'],
+  pois:[['goreme','Göreme','m'],['derinkuyu','Derinkuyu','m'],['avanos','Avanos','o'],['ihlara','Ihlara','w'],['kaymakli','Kaymaklı','o']],
+  deadline:'Derinkuyu closes ~17:00. Enter by 16:00, leave lunch by 15:15, sit down to lunch by 14:15.',
+  slots:[
+   {t:'06:45',p:{tier:'m',at:'goreme',name:'Balloons from the hotel terrace',d:'a hundred or more hot-air balloons rise over Göreme; coffee on the terrace, no need to leave the hotel. Peak 06:45–07:30.'},
+     alts:[{tier:'m',at:'goreme',name:'Balloon flight',d:'05:30 pickup, an hour in the air at sunrise, back by 08:30. The one thing worth breaking the 10:00 rule for. Weather-dependent, book ahead.'}]},
+   {t:'10:00',p:{n:true,name:'Leave.'},
+     alts:[{tier:'m',at:'uchisar',name:'Uçhisar Castle first, if skipped Wednesday',d:'10:00–10:45; then Göreme museum 11:00–12:30 and Çavuşin / Rose Valley shortens to 45 min'}]},
+   {t:'10:15–11:45',p:{tier:'m',at:'goremeoam',name:'Göreme Open-Air Museum',d:'Byzantine monastic complex of rock-cut churches with 10th–12th-century frescoes; the Dark Church is the best, small extra fee. UNESCO.',dur:'1½ h'}},
+   {t:'12:00–13:30',p:{tier:'w',at:'cavusin',name:'Çavuşin and Rose Valley',d:'old village under a cliff of cave houses, the Church of St John the Baptist; then Rose Valley viewpoints by car or a short walk in',dur:'1½ h'},
+     alts:[{tier:'o',at:'pigeonvalley',name:'Pigeon Valley walk',d:'easy 4 km from Uçhisar down to Göreme past thousands of rock-cut dovecotes; one car shuttle needed',dur:'1½ h'},
+           {tier:'o',at:'zelve',name:'Zelve Open-Air Museum',d:'abandoned cave village in three valleys, inhabited until 1952',dur:'1 h'},
+           {tier:'o',at:'pasabag',name:'Paşabağ and Devrent here instead of 16:45'}]},
+   {t:'13:45–14:45',p:{tier:'n',at:'urgup',name:'Lunch in Ürgüp or Ortahisar',d:'Ortahisar is the castle-rock village; Derinkuyu is 45 min from either',dur:'1 h'},
+     alts:[{tier:'o',at:'mustafapasa',name:'Mustafapaşa (Sinasos)',d:'former Greek town of carved stone mansions, quieter than Ürgüp; 10 min further south, same distance to Derinkuyu',dur:'1 h'},
+           {tier:'o',at:'avanos',name:'Avanos',d:'pottery town on the Kızılırmak; lunch and a turn at the wheel in a workshop',dur:'1½ h',cost:'then Derinkuyu is 50 min, leave by 15:00'}]},
+   {t:'15:30–16:30',p:{tier:'m',at:'derinkuyu',name:'Derinkuyu',d:'the deepest underground city in Cappadocia, 8 levels and 60 m down: stables, churches, wine presses, rolling stone doors; thousands hid here from raiders',dur:'1 h'},
+     alts:[{tier:'o',at:'kaymakli',name:'Kaymaklı',d:'the other big underground city, wider and shallower, 10 min before Derinkuyu; either/or',dur:'1 h'}]},
+   {t:'16:45–17:30',p:{tier:'o',at:'devrent',name:'Paşabağ and Devrent',d:'Monks\u2019 Valley with mushroom-capped fairy chimneys and hermit cells, then Imagination Valley with animal-shaped rocks',dur:'45 min'},
+     alts:[{tier:'w',at:'ihlara',name:'Ihlara Valley',d:'a 14 km green canyon with a river and rock churches along the floor; the short walk from Belisırma is the easy part; 45 min each way from Derinkuyu',dur:'1½ h',cost:'replaces this slot and the sunset; back in Göreme ~20:00'}]},
+   {t:'18:00',p:{tier:'w',at:'goremeview',name:'Sunset from Göreme viewpoint or Love Valley'}},
+   {t:'19:30',p:{n:true,name:'Dinner.'},
+     alts:[{tier:'o',at:'goreme',name:'Turkish night',d:'folk dancing, whirling and dinner in a cave restaurant; touristy but fun; instead of a normal dinner'}]}
+  ],
+  buffer:'Buffer 30 min per slot. The museum and Derinkuyu are the fixed points; everything between them is flexible.'},
+
+{ id:'fri16', stay:"Stay within walking distance of the Mevlana Museum, around Mevlana Caddesi and the Karatay quarter; the station is 15 min by taxi from there. Hotels near Alaeddin Hill are the other cluster, 10 min walk west.", tab:['Fri 16','Konya'], title:'Göreme → Konya, return the car', sub:'≈ 230 km · 3½ h padded',
+  night:'konya', route:['goreme','nevsehir','aksaray','sultanhani','konya'],
+  pois:[['sultanhani','Sultanhanı','w'],['konya','Mevlana','m'],['sille','Sille','o'],['catalhoyuk','Çatalhöyük','o'],['soganli','Soğanlı','o']],
+  deadline:'Mevlana Museum and Karatay close ~17:00. Enter Mevlana by 15:00, finish lunch by 14:45, car returned by 13:30, leave Göreme at 10:00 with no stops.',
+  slots:[
+   {t:'10:00',p:{n:true,name:'Leave; Konya road via Aksaray, no stops, 3½ h padded.'},
+     alts:[{tier:'w',at:'sultanhani',name:'Sultanhanı Caravanserai',d:'the largest Seljuk caravanserai in Turkey (1229), directly on the road: carved portal, vaulted hall; adds no distance',dur:'30 min',cost:'costs Karatay; Mevlana still fits'},
+           {tier:'o',at:'kaymakli',name:'Kaymaklı underground city',d:'10 min off route',dur:'1 h',cost:'costs Karatay and squeezes Mevlana'},
+           {tier:'o',at:'soganli',name:'Soğanlı Valley',d:'remote rock churches and fairy chimneys, rag dolls, no tourists; 30 min detour',dur:'1 h',cost:'same cost as Kaymaklı'}]},
+   {t:'13:30',p:{n:true,name:'Konya: return the car. Refuel first, office hours confirmed, allow 30 min for paperwork.'}},
+   {t:'14:00–15:00',p:{tier:'n',at:'etli',name:'Lunch: etli ekmek',d:'Konya\u2019s metre-long thin flatbread with minced lamb, near Mevlana',dur:'1 h'}},
+   {t:'15:00–16:15',p:{tier:'m',at:'mevlana',name:'Mevlana Museum',d:'the turquoise-domed mausoleum of Rumi, founder of the whirling dervishes, and the dervish lodge around it; one of Islam\u2019s great pilgrimage sites',dur:'1¼ h'}},
+   {t:'16:15–17:00',p:{tier:'w',at:'karatay',name:'Karatay Medrese',d:'13th-century Seljuk theological school, now a tile museum; the tiled dome is among the finest interiors anywhere. Walk straight from Mevlana, 10 min.',dur:'45 min'},
+     alts:[{tier:'w',at:'incemin',name:'İnce Minare Medrese',d:'carved stone portal, wood and stone museum, 5 min away; either/or with Karatay given the hours',dur:'45 min'}]},
+   {t:'17:15–18:00',p:{tier:'o',at:'alaeddin',name:'Alaeddin Hill',d:'the Seljuk acropolis in the city centre with the 12th-century Alaeddin Mosque; locals\u2019 evening promenade',dur:'30–45 min'},
+     alts:[{tier:'o',at:'sille',name:'Sille',d:'old Greek village 15 min out by taxi: the Byzantine church of St Helena, cave chapels',dur:'1 h'}]},
+   {t:'19:00',p:{n:true,name:'Dinner.'},
+     alts:[{tier:'o',at:'mevlana',name:'Sema, the whirling dervish ceremony',d:'Konya is where it comes from; often Saturday, sometimes Friday at the Mevlana Cultural Centre. Check.'}]}
+  ],
+  buffer:'Buffer 30 min, all of it before Mevlana. If the car return runs long, eat after Mevlana at 16:15 and skip Karatay. Çatalhöyük, the 9,000-year-old Neolithic town 45 min southeast, is only possible by skipping lunch and the medreses; not recommended.'},
+
+{ id:'sat17', stay:"Sultanahmet puts Sunday’s four sights within 10 min on foot and the tram to the airport at the door. Karaköy / Galata has the better food and evening, 15 min by tram; choose it only if you don’t mind a 20-min start on Sunday.", tab:['Sat 17','Istanbul'], title:'Train to Istanbul', sub:'YHT Konya → Söğütlüçeşme, 4½–5 h',
+  night:'istanbul', route:['konya','eskisehir','istanbul'], train:true,
+  pois:[['istanbul','Galata','w']],
+  deadline:'The train. Fill in your booked time and be at the station 30 min before.',
+  slots:[
+   {t:'10:00',p:{n:true,name:'Taxi to Konya YHT station, 15 min; allow 30.'}},
+   {t:'~11:00',p:{n:true,name:'YHT departs. Lunch on board in the café car, or börek and simit from the station.'}},
+   {t:'~15:45',p:{n:true,name:'Arrive Söğütlüçeşme (Kadıköy): Marmaray 2 stops to Sirkeci for Sultanahmet, or the ferry Kadıköy → Karaköy. If Halkalı: Marmaray east to Sirkeci, ~40 min.'},
+     alts:[{tier:'w',at:'kadikoy',name:'Kadıköy market streets',d:'10 min walk from Söğütlüçeşme: fish, pickles, çiğ köfte, very local; then the ferry across at sunset',dur:'1 h'}]},
+   {t:'16:45',p:{n:true,name:'Check in, Sultanahmet or Karaköy.'}},
+   {t:'17:30–18:15',p:{tier:'w',at:'galata',name:'Galata Tower area',d:'the 14th-century Genoese tower above the Golden Horn, cafés in the lanes around it; walk down to Karaköy',dur:'1 h'},
+     alts:[{tier:'o',at:'istiklal',name:'İstiklal Caddesi',d:'the 1.4 km pedestrian avenue from Galata up to Taksim: nostalgic tram, Çiçek Pasajı; or after dinner',dur:'1 h'}]},
+   {t:'18:20',p:{tier:'w',at:'galatabridge',name:'Sunset from Galata Bridge',d:'fishermen above, fish restaurants below, the Süleymaniye silhouette across the water'},
+     alts:[{tier:'o',at:'galatabridge',name:'Bosphorus by public ferry',d:'the Eminönü ↔ Kadıköy ferry at sunset is the cheapest Bosphorus cruise',dur:'20 min'}]},
+   {t:'19:30',p:{n:true,name:'Dinner in Karaköy: fish, meze, modern Turkish.'}}
+  ],
+  buffer:'The train is the buffer. Marmaray runs every few minutes.'},
+
+{ id:'sun18', tab:['Sun 18','Flight 19:00'], title:'Istanbul, then the airport', sub:'leave Sultanahmet by 15:00',
+  night:null, route:['istanbul'],
+  pois:[['istanbul','Sultanahmet','m']],
+  deadline:'Leave Sultanahmet by 15:00, airport by 16:30; finish lunch by 14:45. The Blue Mosque closes to visitors ~12:15–13:45 for midday prayer, so be inside by 11:00.',
+  slots:[
+   {t:'09:00',p:{n:true,name:'Breakfast; check out, leave bags at the hotel.'}},
+   {t:'10:00–11:00',p:{tier:'m',at:'hagia',name:'Hagia Sophia',d:'Justinian\u2019s church of 537, the largest building on earth for a thousand years, a mosque again since 2020; tourists enter via the upper gallery with its Byzantine mosaics. Online ticket, expect a queue.',dur:'1 h'}},
+   {t:'11:00–11:45',p:{tier:'m',at:'bluemosque',name:'Blue Mosque',d:'1616, six minarets, 20,000 blue İznik tiles inside. Free.',dur:'45 min'},
+     alts:[{tier:'o',at:'hippodrome',name:'Hippodrome',d:'the Byzantine chariot arena between the two: Egyptian obelisk, Serpent Column; you walk through it anyway',dur:'15 min'}]},
+   {t:'11:45–12:30',p:{tier:'w',at:'cistern',name:'Basilica Cistern',d:'6th-century underground reservoir on 336 columns, two Medusa heads, atmospheric lighting',dur:'45 min'},
+     alts:[{tier:'w',at:'suleymaniye',name:'Süleymaniye Mosque',d:'Sinan\u2019s masterpiece on the hill above the Golden Horn, quieter and arguably finer than the Blue Mosque; 15 min walk, then the Grand Bazaar is next door',dur:'45 min'},
+           {tier:'o',at:'archmuseum',name:'Istanbul Archaeology Museums',d:'the Alexander Sarcophagus and the Kadesh treaty tablet, in Topkapı\u2019s first court',dur:'1 h'},
+           {tier:'o',at:'tiam',name:'Turkish and Islamic Arts Museum',d:'carpets and Seljuk-Ottoman art in İbrahim Paşa\u2019s palace on the Hippodrome',dur:'45 min'}]},
+   {t:'12:45–14:45',p:{tier:'w',at:'grandbazaar',name:'Grand Bazaar and lunch',d:'4,000 shops under painted vaults since 1461 (1 h), lunch in the Nuruosmaniye lanes (1 h). Bags collected on the way back; the hotel is 10 min.',dur:'2 h'},
+     alts:[{tier:'w',at:'topkapi',name:'Topkapı Palace instead of Cistern + Bazaar',d:'a must by importance, worth-it here only because it needs 2½ h: the sultans\u2019 palace for 400 years, courtyards, Harem, treasury, Bosphorus views. 11:45–14:15, lunch at the palace café in 30 min.',dur:'2½ h'},
+           {tier:'o',at:'spice',name:'Spice Bazaar and Eminönü',d:'spices, Turkish delight, the ferry docks; on the way to the tram, add if ahead',dur:'30 min'}]},
+   {t:'15:00',p:{n:true,name:'Leave for the airport. IST: tram T1 to Kabataş / Gayrettepe then M11 metro (~1¼ h), or the Havaist bus from Sultanahmet (1–1½ h, traffic). SAW: Havabus from Kadıköy or a taxi (1–1½ h; Sunday traffic is lighter).'}},
+   {t:'16:30',p:{n:true,name:'At the airport, 2½ h before departure.'}},
+   {t:'19:00',p:{n:true,name:'Flight.'}}
+  ],
+  buffer:'Buffer 45 min at the airport end. If the Hagia Sophia queue is bad, do the Blue Mosque first, before 11:00, and come back.'}
+];
+
+/* ---------- map ---------- */
+const map=L.map('map',{zoomControl:true,attributionControl:true,scrollWheelZoom:true}).setView([37.6,34.5],6);
+const esriAttr='Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors, and the GIS User Community';
+const streets=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:esriAttr});
+const topo=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:esriAttr});
+const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'});
+const otm=L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:17,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'});
+const osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'});
+const hosted=location.protocol==='http:'||location.protocol==='https:';
+const layers=hosted?{'OpenStreetMap':osm,'Streets (Esri)':streets,'Terrain':topo,'Satellite':sat,'OpenTopoMap':otm}
+                   :{'Streets':streets,'Terrain':topo,'Satellite':sat,'OpenTopoMap':otm};
+(hosted?osm:streets).addTo(map);
+L.control.layers(layers,null,{position:'topright',collapsed:true}).addTo(map);
+// if the first tiles fail, fall back to OpenTopoMap automatically
+let tileErrors=0;
+streets.on('tileerror',()=>{ if(++tileErrors===6&&map.hasLayer(streets)){ map.removeLayer(streets); otm.addTo(map); } });
+const LL=k=>{const c=C[k];return [c[1],c[0]];};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const tierName={m:'must-see',w:'worth it',o:'optional',n:''};
+
+const legs={}, legLayer=L.layerGroup().addTo(map);
+const nightKeys=new Set(['ayt','fethiye','antalya','kizkalesi','urfa','karadut','gaziantep','goreme','konya','istanbul']);
+days.forEach(d=>{
+  const pts=d.route.map(LL); if(pts.length<2) return;
+  legs[d.id]=L.polyline(pts,{color:'#1E3F8A',weight:3,opacity:.25,dashArray:d.train?'6 8':null,lineJoin:'round'}).addTo(legLayer);
+  if(d.train) return;
+  // real road geometry from OSRM when online; waypoint line stays as fallback
+  const coords=d.route.map(k=>C[k][0]+','+C[k][1]).join(';');
+  fetch('https://router.project-osrm.org/route/v1/driving/'+coords+'?overview=full&geometries=geojson')
+    .then(r=>r.json()).then(j=>{
+      const g=j.routes&&j.routes[0]&&j.routes[0].geometry; if(!g) return;
+      legs[d.id].setLatLngs(g.coordinates.map(c=>[c[1],c[0]]));
+      legs[d.id].setStyle({dashArray:null});
+    }).catch(()=>{ legs[d.id].setStyle({dashArray:'2 6'}); });
+});
+// intermediate waypoints (route points that are not night stops) as small grey points
+const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'Kumluca',alanya:'Alanya',anamur:'Anamur',aydincik:'Aydıncık',silifke:'Silifke',mersin:'Mersin',tarsus:'Tarsus',adana:'Adana',osmaniye:'Osmaniye',gaziantepbypass:'Gaziantep bypass',hilvan:'Hilvan',adiyaman:'Adıyaman',kahta:'Kâhta',nizip:'Nizip',maras:'Kahramanmaraş',goksun:'Göksun',pinarbasi:'Pınarbaşı',kayseri:'Kayseri',nevsehir:'Nevşehir',aksaray:'Aksaray',eskisehir:'Eskişehir'};
+const seen=new Set();
+days.forEach(d=>d.route.forEach(k=>{
+  if(nightKeys.has(k)||seen.has(k)||!wpLabels[k]) return; seen.add(k);
+  L.circleMarker(LL(k),{radius:3,color:'#6B7585',weight:1.5,fillColor:'#FFFFFF',fillOpacity:1}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]});
+}));
+
+// night stops
+const nights=[['ayt','Antalya airport','✈','thu8'],['fethiye','Fethiye','1','thu8'],['antalya','Antalya','2','fri9'],['kizkalesi','Kızkalesi','3','sat10'],['urfa','Şanlıurfa','4','sun11'],['karadut','Karadut / Nemrut','5','mon12'],['gaziantep','Gaziantep','6','tue13'],['goreme','Göreme','7–8','wed14'],['konya','Konya','9','fri16'],['istanbul','Istanbul','10','sat17']];
+const stops={};
+nights.forEach(([k,label,n,dayId])=>{
+  const m=L.marker(LL(k),{icon:L.divIcon({className:'',html:'<div class="nightpin" id="np-'+k+'">'+n+'</div>',iconSize:[26,26],iconAnchor:[13,13]}),zIndexOffset:900,title:label}).addTo(map);
+  m.bindTooltip(label,{direction:'top',offset:[0,-14]});
+  m.on('click',()=>select(dayId));
+  stops[k]=m;
+});
+
+// every objective, primary and alternative
+const poiMarkers=[]; // {day, el, marker}
+days.forEach(d=>{
+  d.slots.forEach(s=>{
+    const items=[[s.p,false]].concat((s.alts||[]).map(a=>[a,true]));
+    items.forEach(([it,isAlt])=>{
+      if(!it.at||!C[it.at]) return;
+      const tier=it.tier&&it.tier!=='n'?it.tier:'o';
+      const html='<div class="poipin '+tier+(isAlt?' alt':'')+'" data-day="'+d.id+'"></div>';
+      const mk=L.marker(LL(it.at),{icon:L.divIcon({className:'',html,iconSize:[12,12],iconAnchor:[6,6]}),zIndexOffset:tier==='m'?500:tier==='w'?300:100,title:it.name}).addTo(map);
+      let pp='<div class="pp-day">'+esc(d.tab[0])+' · '+esc(s.t)+'</div><div class="pp-name">'+esc(it.name)+(it.tier&&it.tier!=='n'?'<span class="pp-tag '+it.tier+'">'+tierName[it.tier]+'</span>':'')+'</div>';
+      if(isAlt) pp+='<div class="pp-alt">alternative for this slot</div>';
+      if(it.d) pp+='<div class="pp-d">'+esc(it.d)+(it.dur?' <span style="color:var(--ink-3)">('+esc(it.dur)+')</span>':'')+'</div>';
+      if(it.cost) pp+='<div class="pp-cost">'+esc(it.cost)+'</div>';
+      pp+='<a class="pp-go" href="#" data-go="'+d.id+'">Open '+esc(d.tab[0])+' →</a>';
+      mk.bindPopup(pp);
+      mk.on('popupopen',e=>{const a=e.popup.getElement().querySelector('[data-go]');a&&a.addEventListener('click',ev=>{ev.preventDefault();select(d.id);map.closePopup();});});
+      poiMarkers.push({day:d.id,marker:mk});
+    });
+  });
+});
+
+function mapSelect(id){
+  const d=days.find(x=>x.id===id);
+  for(const k in legs) legs[k].setStyle({opacity:k===id?1:.25,weight:k===id?5:3,color:k===id?(d.train?'#5B6E9E':'#1E3F8A'):'#1E3F8A'});
+  document.querySelectorAll('.poipin').forEach(el=>el.classList.toggle('on',el.dataset.day===id));
+  document.querySelectorAll('.nightpin').forEach(el=>el.classList.remove('active'));
+  const i=days.indexOf(d);
+  const on=[]; if(d.night) on.push(d.night); if(i>0&&days[i-1].night) on.push(days[i-1].night);
+  if(id==='thu8') on.push('ayt'); if(id==='sun18') on.push('istanbul');
+  on.forEach(k=>{const el=document.getElementById('np-'+k);el&&el.classList.add('active');});
+  // fit to this day's route + its objectives
+  const pts=d.route.map(LL).concat(poiMarkers.filter(p=>p.day===id).map(p=>p.marker.getLatLng()));
+  if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(id==='thu15'||id==='sun18'?0.25:0.12),{animate:booted,maxZoom:id==='sun18'?15:13});
+}
+/* ---------- tabs + panel ---------- */
+const tabs=document.getElementById('tabs'), dayEl=document.getElementById('day');
+days.forEach(d=>{
+  const b=document.createElement('button');b.className='tab';b.id='tab-'+d.id;b.setAttribute('role','tab');
+  b.innerHTML='<b>'+d.tab[0]+'</b><small>'+d.tab[1]+'</small>';
+  b.addEventListener('click',()=>select(d.id));tabs.appendChild(b);
+});
+
+function itemHTML(it,alt){
+  const cls='item '+(it.n?'n':(it.tier||'n'));
+  let h='<div class="'+cls+'">';
+  h+='<span class="name">'+esc(it.name)+'</span>';
+  if(it.dur) h+='<span class="dur">'+esc(it.dur)+'</span>';
+  if(it.d) h+='<div class="d">'+esc(it.d)+'</div>';
+  if(alt&&it.cost) h+='<span class="cost">'+esc(it.cost)+'</span>';
+  return h+'</div>';
+}
+function render(d){
+  let h='<h2>'+esc(d.title)+'</h2><p class="sub">'+esc(d.sub)+'</p>';
+  if(d.stay) h+='<p class="stay">'+esc(d.stay)+'</p>';
+  h+='<div class="deadline"><b>Hard deadline.</b> '+esc(d.deadline)+'</div>';
+  d.slots.forEach(s=>{
+    h+='<div class="slot"><div class="t">'+esc(s.t)+'</div><div>'+itemHTML(s.p);
+    if(s.alts&&s.alts.length){
+      h+='<details class="alts"><summary>'+(s.alts.length===1?'1 alternative':s.alts.length+' alternatives')+'</summary>';
+      s.alts.forEach(a=>h+=itemHTML(a,true));
+      h+='</details>';
+    }
+    h+='</div></div>';
+  });
+  if(d.buffer) h+='<div class="buffer">'+esc(d.buffer)+'</div>';
+  const i=days.indexOf(d);
+  h+='<div class="nav"><button id="prev" '+(i===0?'disabled':'')+'>← '+(i>0?esc(days[i-1].tab[0]):'')+'</button><button id="next" '+(i===days.length-1?'disabled':'')+'>'+(i<days.length-1?esc(days[i+1].tab[0]):'')+' →</button></div>';
+  dayEl.innerHTML=h;
+  dayEl.querySelector('#prev')?.addEventListener('click',()=>select(days[i-1].id));
+  dayEl.querySelector('#next')?.addEventListener('click',()=>select(days[i+1].id));
+}
+
+let current=null, booted=false;
+function select(id){
+  const d=days.find(x=>x.id===id); if(!d) return; current=id;
+  mapSelect(id);
+  tabs.querySelectorAll('.tab').forEach(t=>{const on=t.id==='tab-'+id;t.classList.toggle('active',on);t.setAttribute('aria-selected',on);});
+  document.getElementById('tab-'+id)?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+  render(d);
+  if(booted&&window.innerWidth<960) document.querySelector('.panel').scrollIntoView({behavior:'smooth',block:'start'});
+  try{localStorage.setItem('tr-day',id);}catch(e){}
+}
+let start='thu8';
+try{const s=localStorage.getItem('tr-day');if(s&&days.some(d=>d.id===s))start=s;}catch(e){}
+// no scroll on first paint
+select(start); booted=true;
+</script>
+</body>
+</html>
