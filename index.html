@@ -207,7 +207,7 @@ const C = {
   hagia:[28.980,41.0086], bluemosque:[28.9768,41.0054], cistern:[28.9777,41.0084], grandbazaar:[28.968,41.0106], topkapi:[28.983,41.0115],
   suleymaniye:[28.964,41.016], spice:[28.970,41.0166], archmuseum:[28.981,41.0117], tiam:[28.975,41.006], hippodrome:[28.975,41.0057],
   sillev:[32.40,37.93], olympos2:[30.47,36.40], kalkoy:[29.86,36.19], ucagiz:[29.85,36.20], sogutlucesme:[29.04,40.99], halkali:[28.77,41.02],
-  kizkalesibeach:[34.15,36.46], korykos:[34.14,36.465]
+  kizkalesibeach:[34.15,36.46], korykos:[34.14,36.465], siverek:[39.32,37.75], nissibi:[38.90,37.79]
 };
 
 const T = {m:'must',w:'worth',o:'optional'};
@@ -294,19 +294,20 @@ const days = [
   ],
   buffer:'Buffer 30 min; the tightest day. If the museum is missed it can only be done tomorrow 09:00–10:00 by leaving the hotel at 09:00, otherwise let it go.'},
 
-{ id:'mon12', stay:"Karadut village, the last settlement below the summit (Karadut Pension, Euphrat, Nemrut Kervansaray); basic rooms, dinner included, 30 min from the top. Kâhta town has proper hotels but is 1 h from the summit, which breaks the sunset timing.", tab:['Mon 12','Nemrut'], title:'Göbekli Tepe → Nemrut Dağı', sub:'≈ 220 km · 3½ h padded',
-  night:'karadut', route:['urfa','gobekli','hilvan','adiyaman','kahta','cendere','karadut','nemrut'],
+{ id:'mon12', stay:"Karadut village, the last settlement below the summit (Karadut Pension, Euphrat, Nemrut Kervansaray); basic rooms, dinner included, 30 min from the top. Kâhta town has proper hotels but is 1 h from the summit, which breaks the sunset timing.", tab:['Mon 12','Nemrut'], title:'Göbekli Tepe → Nemrut Dağı', sub:'≈ 190 km · 3 h padded · across the Atatürk Dam lake',
+  night:'karadut', route:['urfa','gobekli','hilvan','siverek','nissibi','kahta','cendere','karadut','nemrut'],
   pois:[['gobekli','Göbekli Tepe','m'],['nemrut','Nemrut','m'],['cendere','Cendere','w'],['karahantepe','Karahantepe','o'],['harran','Harran','o']],
-  deadline:'Summit by 17:45 for the 18:05 sunset. Leave Karadut 17:00, arrive Karadut 16:30, leave lunch by 15:00, sit down to lunch by 14:15, leave Göbekli Tepe by 12:30.',
+  deadline:'Summit by 17:45 for the 18:05 sunset. Leave Karadut 17:00, arrive Karadut 16:30, leave Siverek by 14:45, leave Göbekli Tepe by 12:45.',
   slots:[
    {t:'10:00',p:{n:true,name:'Leave; the site is 20 min from the centre.'}},
    {t:'10:30–12:30',p:{tier:'m',at:'gobekli',name:'Göbekli Tepe',d:'the oldest monumental site built by humans (c. 9500 BC, 6,000 years before Stonehenge): rings of carved T-pillars with foxes, boars and vultures, raised by hunter-gatherers before farming existed. Roofed excavation, boardwalk, shuttle from the car park. Timed ticket.',dur:'1½–2 h'},
      alts:[{tier:'o',at:'karahantepe',name:'Karahantepe instead',d:'the sister site 1 h southeast: human-figure pillars, newly opened, almost nobody there',dur:'1 h + 2 h driving',cost:'only instead of Göbekli Tepe, never in addition; otherwise Nemrut is impossible'}]},
-   {t:'12:30',p:{n:true,name:'Drive via Adıyaman, 1¾ h padded.'},
+   {t:'12:30',p:{n:true,name:'Drive north via Hilvan to Siverek, 1 h.'},
      alts:[{tier:'o',at:'harran',name:'Harran',d:'mud-brick beehive houses and the ruins of the first Islamic university, 45 min south of Urfa',dur:'1 h + 1½ h driving',cost:'costs Cendere and makes the sunset tight; not recommended'}]},
-   {t:'14:15–15:00',p:{tier:'n',at:'adiyamanlunch',name:'Lunch in Adıyaman',d:'eat here, not Kâhta; it is 30 min earlier on the road. The one shortened lunch of the trip, forced by the sunset.',dur:'45 min'},
-     alts:[{tier:'n',name:'Picnic bought in Urfa, eaten at Cendere bridge',d:'saves 45 min and buys Arsameia'}]},
-   {t:'15:45',p:{tier:'w',at:'cendere',name:'Cendere Bridge',d:'2nd-century Roman bridge, intact, three of its four columns standing; beside the road',dur:'15 min'},
+   {t:'13:30–14:30',p:{tier:'n',at:'siverek',name:'Lunch in Siverek',d:'market town on the Diyarbakır road; lokantas on the main street, Siverek is known for its lahmacun',dur:'1 h'},
+     alts:[{tier:'n',name:'Picnic bought in Urfa, eaten at the Nissibi bridge viewpoint',d:'saves 45 min and buys Arsameia'}]},
+   {t:'15:00',p:{tier:'w',at:'nissibi',name:'Nissibi Bridge over the Atatürk Dam lake',d:'cable-stayed bridge (2015) across the drowned Euphrates valley; pull over on the Kâhta side for the view',dur:'10 min'}},
+   {t:'15:50',p:{tier:'w',at:'cendere',name:'Cendere Bridge',d:'2nd-century Roman bridge, intact, three of its four columns standing; beside the road',dur:'15 min'},
      alts:[{tier:'o',at:'karakus',name:'Karakuş Tumulus',d:'burial mound of Antiochus\u2019s wife and daughter with an eagle column, 10 min before Cendere',dur:'15 min'},
            {tier:'o',at:'arsameia',name:'Arsameia',d:'Commagene summer capital: relief of Hercules shaking the king\u2019s hand, a long Greek inscription at a tunnel mouth; short climb, 10 min off route',dur:'45 min',cost:'fits only with the picnic option'}]},
    {t:'16:30',p:{n:true,name:'Check in, Karadut guesthouse. Warm layers: the summit is windy and ~5 °C at dusk.'}},
@@ -314,7 +315,7 @@ const days = [
    {t:'18:05',p:{tier:'m',at:'nemrut',name:'Nemrut Dağı sunset, west terrace',d:'Antiochus I\u2019s 1st-century BC tomb: a 50 m gravel tumulus on a 2,134 m summit flanked by 8–9 m seated gods whose toppled heads stare out over the mountains. UNESCO.'}},
    {t:'19:30',p:{n:true,name:'Guesthouse dinner, usually the only option.'}}
   ],
-  buffer:'Buffer 15 min; the tightest afternoon of the trip. Leaving Göbekli Tepe after 12:45: cut lunch to 30 min. After 13:15: picnic, skip Cendere. The guesthouse feeds you at night, so a thin lunch is survivable.'},
+  buffer:'Buffer 40 min. Leaving Göbekli Tepe after 13:15: cut lunch to 30 min. After 13:45: picnic, skip Cendere. The guesthouse feeds you at night, so a thin lunch is survivable.'},
 
 { id:'tue13', stay:"Stay in the Şahinbey centre around the castle and bazaar (Anadolu Evleri and other stone-house hotels) so dinner and the morning bazaar are on foot. Gazimuhtarpaşa Bulvarı has the modern chains, a 10-min taxi.", tab:['Tue 13','Gaziantep'], title:'Nemrut → the Euphrates → Gaziantep', sub:'≈ 280 km · 4½ h padded · the slack day',
   night:'gaziantep', route:['karadut','kahta','adiyaman','halfeti','nizip','gaziantep'],
@@ -482,7 +483,7 @@ days.forEach(d=>{
     }).catch(()=>{ legs[d.id].setStyle({dashArray:'2 6'}); });
 });
 // intermediate waypoints (route points that are not night stops) as small grey points
-const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'Kumluca',alanya:'Alanya',anamur:'Anamur',aydincik:'Aydıncık',silifke:'Silifke',mersin:'Mersin',tarsus:'Tarsus',adana:'Adana',osmaniye:'Osmaniye',gaziantepbypass:'Gaziantep bypass',hilvan:'Hilvan',adiyaman:'Adıyaman',kahta:'Kâhta',nizip:'Nizip',maras:'Kahramanmaraş',goksun:'Göksun',pinarbasi:'Pınarbaşı',kayseri:'Kayseri',nevsehir:'Nevşehir',aksaray:'Aksaray',eskisehir:'Eskişehir'};
+const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'Kumluca',alanya:'Alanya',anamur:'Anamur',aydincik:'Aydıncık',silifke:'Silifke',mersin:'Mersin',tarsus:'Tarsus',adana:'Adana',osmaniye:'Osmaniye',gaziantepbypass:'Gaziantep bypass',hilvan:'Hilvan',adiyaman:'Adıyaman',siverek:'Siverek',kahta:'Kâhta',nizip:'Nizip',maras:'Kahramanmaraş',goksun:'Göksun',pinarbasi:'Pınarbaşı',kayseri:'Kayseri',nevsehir:'Nevşehir',aksaray:'Aksaray',eskisehir:'Eskişehir'};
 const seen=new Set();
 days.forEach(d=>d.route.forEach(k=>{
   if(nightKeys.has(k)||seen.has(k)||!wpLabels[k]) return; seen.add(k);
