@@ -111,6 +111,8 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .day{padding:18px 20px 36px;max-width:680px}
 .day h2{font-family:var(--serif);font-weight:600;font-size:26px;margin:0 0 2px;letter-spacing:-.01em;line-height:1.15}
 .day .sub{color:var(--ink-2);font-size:14px;margin:0 0 14px}
+.rt{margin:-8px 0 12px;font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ovday .rt{display:block;color:var(--ink-3);font-size:12px}
 .stay{margin:-6px 0 14px;padding-left:12px;border-left:3px solid var(--worth);color:var(--ink-2);font-size:13.5px;line-height:1.5}
 .deadline{background:var(--deadline-bg);color:var(--deadline-ink);border-radius:10px;padding:10px 14px;font-size:13.5px;line-height:1.45;margin-bottom:18px}
 .deadline b{font-weight:600}
@@ -152,6 +154,15 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .ovday .l3 span{display:inline-flex;align-items:center;gap:5px}
 .ov .keys{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:grid;gap:6px}
 .ov .keys span{display:inline-flex;align-items:center;gap:8px}
+.inc{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:11.5px;color:var(--ink-3);vertical-align:1px;cursor:pointer;white-space:nowrap}
+.inc input{margin:0;accent-color:var(--route);width:13px;height:13px}
+.gm{margin-top:16px;padding:12px 14px;border-radius:10px;background:var(--bg);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gm .lbl{flex:1 1 100%;font-size:13px;color:var(--ink-2)}
+.gm a{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--ink);text-decoration:none}
+.gm a.primary{background:var(--route);border-color:var(--route);color:var(--tab-ink)}
+.gm small{flex:1 1 100%;font-size:11.5px;color:var(--ink-3)}
+.pp-links{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.pp-links a,.pp-links button{font-size:12.5px;color:var(--route);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
 .nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
 .nav button{border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13.5px;color:var(--ink)}
 .nav button:disabled{opacity:.4;cursor:default}
@@ -162,7 +173,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 12</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -187,7 +198,7 @@ const C = {
   alanya:[32.00,36.54], anamur:[32.84,36.08], aydincik:[33.32,36.14], silifke:[33.93,36.38], kizkalesi:[34.15,36.46],
   mersin:[34.63,36.80], tarsus:[34.90,36.92], adana:[35.32,37.00], osmaniye:[36.25,37.07], gaziantepbypass:[37.30,37.15],
   urfa:[38.79,37.16], gobekli:[38.92,37.22], hilvan:[38.95,37.59], adiyaman:[38.28,37.76], kahta:[38.6190,37.7850],
-  cendere:[38.6075,37.9360], karadut:[38.7637,37.9316], nemrut:[38.7372,37.9778], halfeti:[37.87,37.25], nizip:[37.80,37.01],
+  cendere:[38.6090,37.9340], karadut:[38.7637,37.9316], nemrut:[38.7372,37.9778], halfeti:[37.87,37.25], nizip:[37.80,37.01],
   gaziantep:[37.38,37.07], maras:[36.93,37.58], goksun:[36.50,38.03], pinarbasi:[36.39,38.72], kayseri:[35.48,38.72],
   goreme:[34.83,38.64], uchisar:[34.80,38.63], derinkuyu:[34.73,38.37], urgup:[34.91,38.63], nevsehir:[34.71,38.63],
   aksaray:[34.03,38.37], sultanhani:[33.55,38.25], konya:[32.49,37.87], eskisehir:[30.52,39.78], istanbul:[28.98,41.01],
@@ -195,7 +206,7 @@ const C = {
   karahantepe:[39.28,37.06], harran:[39.03,36.87], birecik:[37.98,37.03], zeugma:[37.87,37.06], ihlara:[34.30,38.25],
   avanos:[34.85,38.72], soganli:[34.95,38.35], kaymakli:[34.75,38.46], sille:[32.40,37.93], catalhoyuk:[32.83,37.67],
   xanthos:[29.32,36.36], letoon:[29.29,36.33], saklikent:[29.40,36.46], stnicholas:[29.985,36.245], phaselis:[30.55,36.52],
-  antalyamuseum:[30.68,36.885], kaleici:[30.705,36.885], mamure:[32.84,36.08], anamurium:[32.80,36.03], taskopru:[35.33,36.985],
+  antalyamuseum:[30.68,36.885], kaleici:[30.705,36.885], mamure:[32.906,36.079], anamurium:[32.80,36.03], taskopru:[35.33,36.985],
   haleplibahce:[38.785,37.155], urfacastle:[38.783,37.148], baliklıgol:[38.785,37.150], urfabazaar:[38.79,37.153],
   arsameia:[38.6560,37.9460], karakus:[38.5645,37.8160], kahtalunch:[38.62,37.78], adiyamanlunch:[38.28,37.76],
   gaziantepcastle:[37.383,37.066], bakircilar:[37.381,37.062], culinary:[37.385,37.060], medusa:[37.386,37.058], bayazhan:[37.384,37.065], zeugmamuseum:[37.373,37.074], imam:[37.382,37.061],
@@ -206,7 +217,7 @@ const C = {
   kadikoy:[29.025,40.990], galata:[28.974,41.0256], istiklal:[28.98,41.03], galatabridge:[28.973,41.020], karakoy:[28.975,41.023],
   hagia:[28.980,41.0086], bluemosque:[28.9768,41.0054], cistern:[28.9777,41.0084], grandbazaar:[28.968,41.0106], topkapi:[28.983,41.0115],
   suleymaniye:[28.964,41.016], spice:[28.970,41.0166], archmuseum:[28.981,41.0117], tiam:[28.975,41.006], hippodrome:[28.975,41.0057],
-  sillev:[32.40,37.93], olympos2:[30.47,36.40], kalkoy:[29.86,36.19], ucagiz:[29.85,36.20], sogutlucesme:[29.04,40.99], halkali:[28.77,41.02],
+  sillev:[32.40,37.93], olymposjct:[30.455,36.435], kalkoy:[29.86,36.19], ucagiz:[29.85,36.20], sogutlucesme:[29.04,40.99], halkali:[28.77,41.02],
   kizkalesibeach:[34.15,36.46], korykos:[34.14,36.465], siverek:[39.3160,37.7540], nissibi:[38.9540,37.8520], nemrutroad:[38.7440,37.9660]
 };
 
@@ -233,7 +244,7 @@ const days = [
   buffer:'Buffer 30 min. If the rental pickup runs past 14:00, eat at the airport and skip Korkuteli.'},
 
 { id:'fri9', stay:"Stay in Kaleiçi, inside the old walls, so the evening is on foot. If you want a sea view instead, Konyaaltı is 10 min west, but you lose the old town.", tab:['Fri 9','Antalya'], title:'Fethiye → Antalya, the Lycian coast', sub:'≈ 300 km · 5½ h padded',
-  night:'antalya', route:['fethiye','patara','kalkan','kas','demre','finike','kumluca','olympos','antalya'],
+  night:'antalya', route:['fethiye','patara','kalkan','kas','demre','finike','kumluca','olymposjct','antalya'],
   pois:[['patara','Patara','w'],['kas','Kaş','m'],['demre','Myra','m'],['kekova','Kekova','w'],['olympos','Olympos','w'],['kayakoy','Kayaköy','o']],
   deadline:'Myra closes ~17:00. Be in Demre by 16:00, so leave Kaş by 15:15.',
   slots:[
@@ -275,7 +286,7 @@ const days = [
   buffer:'Buffer is built into the padded coast time. Behind at Alanya? Skip Mamure. After 16:30 at Alanya? Sleep in Anamur instead and leave at 10 tomorrow; Sunday then loses the Adana lunch but still makes Urfa.'},
 
 { id:'sun11', stay:"Stay in the old town around Balıklıgöl, in a konak (restored stone mansion) so the pools and bazaar are a 5-min walk. Karaköprü, the new town 10 min north, has modern hotels but you’d drive in for the evening.", tab:['Sun 11','Şanlıurfa'], title:'Kızkalesi → Şanlıurfa', sub:'≈ 430 km · 6 h padded',
-  night:'urfa', route:['kizkalesi','mersin','tarsus','adana','osmaniye','gaziantepbypass','urfa'],
+  night:'urfa', route:['kizkalesi','mersin','tarsus','adana','osmaniye','urfa'],
   pois:[['heavenhell','Heaven & Hell','w'],['tarsus','Tarsus','o'],['adana','Adana','w'],['urfa','Urfa','m']],
   deadline:'Urfa museum last entry ~16:30 (assume winter hours). Parked by 16:15, so leave Adana by 13:00 and Kızkalesi at 10:00 sharp.',
   slots:[
@@ -295,7 +306,7 @@ const days = [
   buffer:'Buffer 30 min; the tightest day. If the museum is missed it can only be done tomorrow 09:00–10:00 by leaving the hotel at 09:00, otherwise let it go.'},
 
 { id:'mon12', stay:"Karadut village, the last settlement below the summit (Karadut Pension, Euphrat, Nemrut Kervansaray); basic rooms, dinner included, 30 min from the top. Kâhta town has proper hotels but is 1 h from the summit, which breaks the sunset timing.", tab:['Mon 12','Nemrut'], title:'Göbekli Tepe → Nemrut Dağı', sub:'≈ 190 km · 3 h padded · across the Atatürk Dam lake',
-  night:'karadut', route:['urfa','gobekli','hilvan','siverek','nissibi','kahta','cendere','karadut','nemrut'], climb:['karadut','nemrutroad','nemrut'], climbMax:230000,
+  night:'karadut', route:['urfa','gobekli','hilvan','siverek','nissibi','kahta','karadut','nemrut'], climb:['karadut','nemrutroad','nemrut'], climbMax:230000,
   pois:[['gobekli','Göbekli Tepe','m'],['nemrut','Nemrut','m'],['cendere','Cendere','w'],['karahantepe','Karahantepe','o'],['harran','Harran','o']],
   deadline:'Summit by 17:45 for the 18:05 sunset. Leave Karadut 17:00, arrive Karadut 16:30, leave Siverek by 14:45, leave Göbekli Tepe by 12:45.',
   slots:[
@@ -466,8 +477,56 @@ streets.on('tileerror',()=>{ if(++tileErrors===6&&map.hasLayer(streets)){ map.re
 const LL=k=>{const c=C[k];return [c[1],c[0]];};
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const tierName={m:'must-see',w:'worth it',o:'optional',n:''};
+const gmPoint=k=>{const c=C[k];return c[1].toFixed(5)+','+c[0].toFixed(5);};
+const gmSearch=k=>'https://www.google.com/maps/search/?api=1&query='+gmPoint(k);
+function copyText(t,btn){ try{ navigator.clipboard.writeText(t).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1200);} }); }catch(e){ prompt('Coordinates',t); } }
+// which items are included in a day's exported route: ids like 'fri9-2-p' (slot 2 primary) or 'fri9-2-a1' (slot 2, alternative 1)
+const chosen={};
+function defaultChosen(d){
+  if(chosen[d.id]) return chosen[d.id];
+  const set=new Set(); d.slots.forEach((sl,i)=>{ if(sl.p&&sl.p.at) set.add(d.id+'-'+i+'-p'); });
+  chosen[d.id]=set; return set;
+}
+function dayEndpoints(d){
+  const i=days.indexOf(d);
+  const origin=d.id==='thu8'?'ayt':(i>0?days[i-1].night:null);
+  const dest=d.night||(d.id==='sun18'?'istanbul':null);
+  return {origin,dest};
+}
+function dayRouteKeys(d,withStops){
+  const {origin,dest}=dayEndpoints(d); if(!origin||!dest) return null;
+  let keys=[];
+  if(withStops){
+    const set=defaultChosen(d);
+    d.slots.forEach((sl,i)=>{
+      if(sl.p&&sl.p.at&&set.has(d.id+'-'+i+'-p')) keys.push({k:sl.p.at,t:sl.p.tier||'n'});
+      (sl.alts||[]).forEach((a,j)=>{ if(a.at&&set.has(d.id+'-'+i+'-a'+j)) keys.push({k:a.at,t:a.tier||'n'}); });
+    });
+  }
+  // drop points that are the origin/destination themselves, and consecutive duplicates
+  keys=keys.filter(x=>x.k!==origin&&x.k!==dest).filter((x,idx,arr)=>idx===0||arr[idx-1].k!==x.k);
+  // Google accepts at most 9 waypoints: drop optional, then worth-it, from the end
+  for(const t of ['n','o','w']) while(keys.length>9&&keys.some(x=>x.t===t)){ const idx=keys.map(x=>x.t).lastIndexOf(t); keys.splice(idx,1); }
+  while(keys.length>9) keys.pop();
+  return {origin,dest,waypoints:keys.map(x=>x.k)};
+}
+function gmDirections(d,withStops){
+  const r=dayRouteKeys(d,withStops); if(!r) return null;
+  let u='https://www.google.com/maps/dir/?api=1&origin='+gmPoint(r.origin)+'&destination='+gmPoint(r.dest)+'&travelmode='+(d.id==='sun18'?'walking':'driving');
+  if(r.waypoints.length) u+='&waypoints='+r.waypoints.map(gmPoint).join('|');
+  return {url:u,n:r.waypoints.length};
+}
 
 const legs={}, legLayer=L.layerGroup().addTo(map);
+const routed={}; // dayId -> {km, min, note}
+const fmtH=min=>{const h=Math.floor(min/60),m=Math.round(min%60);return h?h+' h '+(m<10?'0':'')+m:m+' min';};
+function rtText(id){
+  const r=routed[id]; if(!r) return '';
+  return Math.round(r.km)+' km · '+fmtH(r.min)+' driving (router)'+(r.note?' '+r.note:'')+' · plan for '+fmtH(r.min*1.2)+' with stops for fuel and traffic';
+}
+function showRouted(id){
+  document.querySelectorAll('[data-rt="'+id+'"]').forEach(el=>{el.textContent=rtText(id);});
+}
 const nightKeys=new Set(['ayt','fethiye','antalya','kizkalesi','urfa','karadut','gaziantep','goreme','konya','istanbul']);
 days.forEach(d=>{
   const pts=d.route.map(LL); if(pts.length<2) return;
@@ -483,11 +542,13 @@ days.forEach(d=>{
           const r2=j2.routes&&j2.routes[0]; if(!r2) return;
           legs[d.id].setLatLngs(r2.geometry.coordinates.map(c=>[c[1],c[0]])); legs[d.id].setStyle({dashArray:null});
           if(legs[d.id+'-climb']) legs[d.id+'-climb'].addTo(legLayer);
+          routed[d.id]={km:r2.distance/1000+12,min:r2.duration/60+30,note:'(incl. 12 km / 30 min summit road)'}; showRouted(d.id);
         });
       }
       legs[d.id].setLatLngs(rt.geometry.coordinates.map(c=>[c[1],c[0]]));
       legs[d.id].setStyle({dashArray:null});
       if(legs[d.id+'-climb']) legLayer.removeLayer(legs[d.id+'-climb']);
+      routed[d.id]={km:rt.distance/1000,min:rt.duration/60}; showRouted(d.id);
     }).catch(()=>{ legs[d.id].setStyle({dashArray:'2 6'}); });
 });
 // mountain climbs the road router can't handle: drawn as their own dashed segment
@@ -497,11 +558,11 @@ days.forEach(d=>{
   legs[d.id+'-climb']=pl; // shown only if the router can't reach the car park
 });
 // intermediate waypoints (route points that are not night stops) as small grey points
-const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'Kumluca',alanya:'Alanya',anamur:'Anamur',aydincik:'Aydıncık',silifke:'Silifke',mersin:'Mersin',tarsus:'Tarsus',adana:'Adana',osmaniye:'Osmaniye',gaziantepbypass:'Gaziantep bypass',hilvan:'Hilvan',adiyaman:'Adıyaman',siverek:'Siverek',kahta:'Kâhta',nizip:'Nizip',maras:'Kahramanmaraş',goksun:'Göksun',pinarbasi:'Pınarbaşı',kayseri:'Kayseri',nevsehir:'Nevşehir',aksaray:'Aksaray',eskisehir:'Eskişehir'};
+const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'Kumluca',alanya:'Alanya',anamur:'Anamur',aydincik:'Aydıncık',silifke:'Silifke',mersin:'Mersin',tarsus:'Tarsus',adana:'Adana',osmaniye:'Osmaniye',hilvan:'Hilvan',adiyaman:'Adıyaman',siverek:'Siverek',kahta:'Kâhta',nizip:'Nizip',maras:'Kahramanmaraş',goksun:'Göksun',pinarbasi:'Pınarbaşı',kayseri:'Kayseri',nevsehir:'Nevşehir',aksaray:'Aksaray',eskisehir:'Eskişehir'};
 const seen=new Set();
 days.forEach(d=>d.route.forEach(k=>{
   if(nightKeys.has(k)||seen.has(k)||!wpLabels[k]) return; seen.add(k);
-  L.circleMarker(LL(k),{radius:3.5,stroke:false,fillColor:'#4D5A6A',fillOpacity:.9}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]}).bindPopup('<div class="pp-name">'+wpLabels[k]+'</div><div class="pp-alt">town on the route, no stop planned</div>');
+  L.circleMarker(LL(k),{radius:3.5,stroke:false,fillColor:'#4D5A6A',fillOpacity:.9}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]}).bindPopup('<div class="pp-name">'+wpLabels[k]+'</div><div class="pp-alt">town on the route, no stop planned</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(k)+'">Open in Google Maps</a></div>');
 }));
 
 // night stops
@@ -510,7 +571,9 @@ const stops={};
 nights.forEach(([k,label,n,dayId])=>{
   const m=L.marker(LL(k),{icon:L.divIcon({className:'',html:'<div class="nightpin" id="np-'+k+'">'+n+'</div>',iconSize:[26,26],iconAnchor:[13,13]}),zIndexOffset:900,title:label}).addTo(map);
   m.bindTooltip(label,{direction:'top',offset:[0,-14]});
+  m.bindPopup('<div class="pp-name">'+label+'</div><div class="pp-alt">night stop</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(k)+'">Open in Google Maps</a><button data-copy="'+gmPoint(k)+'">Copy coordinates</button></div>');
   m.on('click',()=>select(dayId));
+  m.on('popupopen',e=>{const c=e.popup.getElement().querySelector('[data-copy]');c&&c.addEventListener('click',()=>copyText(c.dataset.copy,c));});
   stops[k]=m;
 });
 
@@ -529,9 +592,11 @@ days.forEach(d=>{
       if(isAlt) pp+='<div class="pp-alt">not in the plan by default; swaps with the primary choice in this slot</div>';
       if(it.d) pp+='<div class="pp-d">'+esc(it.d)+(it.dur?' <span style="color:var(--ink-3)">('+esc(it.dur)+')</span>':'')+'</div>';
       if(it.cost) pp+='<div class="pp-cost">'+esc(it.cost)+'</div>';
-      pp+='<a class="pp-go" href="#" data-go="'+d.id+'">Open '+esc(d.tab[0])+' →</a>';
+      pp+='<div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(it.at)+'">Open in Google Maps</a><button data-copy="'+gmPoint(it.at)+'">Copy coordinates</button><a href="#" data-go="'+d.id+'">Open '+esc(d.tab[0])+' →</a></div>';
       mk.bindPopup(pp);
-      mk.on('popupopen',e=>{const a=e.popup.getElement().querySelector('[data-go]');a&&a.addEventListener('click',ev=>{ev.preventDefault();select(d.id);map.closePopup();});});
+      mk.on('popupopen',e=>{const el=e.popup.getElement();
+        const a=el.querySelector('[data-go]');a&&a.addEventListener('click',ev=>{ev.preventDefault();select(d.id);map.closePopup();});
+        const c=el.querySelector('[data-copy]');c&&c.addEventListener('click',()=>copyText(c.dataset.copy,c));});
       poiMarkers.push({day:d.id,marker:mk});
     });
   });
@@ -568,11 +633,12 @@ days.forEach(d=>{
   b.addEventListener('click',()=>select(d.id));tabs.appendChild(b);
 });
 
-function itemHTML(it,alt){
+function itemHTML(it,alt,incId,checked){
   const tier=it.n?'n':(it.tier||'n');
   let h='<div class="item '+tier+'">';
   if(tier!=='n') h+='<i class="ind '+tier+(alt?' alt':'')+'"></i>';
   h+='<span class="name">'+esc(it.name)+'</span>';
+  if(incId&&it.at) h+='<label class="inc" title="Include in the exported Google Maps route"><input type="checkbox" data-inc="'+incId+'" '+(checked?'checked':'')+'> route</label>';
   if(it.dur) h+='<span class="dur">'+esc(it.dur)+'</span>';
   if(it.d) h+='<div class="d">'+esc(it.d)+'</div>';
   if(alt&&it.cost) h+='<span class="cost">'+esc(it.cost)+'</span>';
@@ -582,18 +648,21 @@ function render(d){
   const i=days.indexOf(d);
   let h='<div class="daynav"><button class="back" data-ov>← Overview</button><span>Day '+(i+1)+' of '+days.length+'</span><span><button data-prev '+(i===0?'disabled':'')+' aria-label="Previous day">‹</button> <button data-next '+(i===days.length-1?'disabled':'')+' aria-label="Next day">›</button></span></div>';
   h+='<h2>'+esc(d.title)+'</h2><p class="sub">'+esc(d.sub)+'</p>';
+  if(!d.train&&d.route.length>1) h+='<p class="rt" data-rt="'+d.id+'">'+esc(rtText(d.id)||'Measuring the route…')+'</p>';
   if(d.stay) h+='<p class="stay">'+esc(d.stay)+'</p>';
   h+='<div class="deadline"><b>Hard deadline.</b> '+esc(d.deadline)+'</div>';
   d.slots.forEach(s=>{
-    h+='<div class="slot"><div class="t">'+esc(s.t)+'</div><div>'+itemHTML(s.p);
+    const set=defaultChosen(d), si=d.slots.indexOf(s);
+    h+='<div class="slot"><div class="t">'+esc(s.t)+'</div><div>'+itemHTML(s.p,false,d.id+'-'+si+'-p',set.has(d.id+'-'+si+'-p'));
     if(s.alts&&s.alts.length){
       h+='<details class="alts"><summary>'+(s.alts.length===1?'1 alternative':s.alts.length+' alternatives')+'</summary>';
-      s.alts.forEach(a=>h+=itemHTML(a,true));
+      s.alts.forEach((a,j)=>h+=itemHTML(a,true,d.id+'-'+si+'-a'+j,set.has(d.id+'-'+si+'-a'+j)));
       h+='</details>';
     }
     h+='</div></div>';
   });
   if(d.buffer) h+='<div class="buffer">'+esc(d.buffer)+'</div>';
+  h+=gmBlock(d);
   h+='<div class="nav"><button id="prev" '+(i===0?'disabled':'')+'>← '+(i>0?esc(days[i-1].tab[0]):'')+'</button><button id="next" '+(i===days.length-1?'disabled':'')+'>'+(i<days.length-1?esc(days[i+1].tab[0]):'')+' →</button></div>';
   dayEl.innerHTML=h;
   dayEl.querySelector('#prev')?.addEventListener('click',()=>select(days[i-1].id));
@@ -601,8 +670,21 @@ function render(d){
   dayEl.querySelector('[data-prev]')?.addEventListener('click',()=>select(days[i-1].id));
   dayEl.querySelector('[data-next]')?.addEventListener('click',()=>select(days[i+1].id));
   dayEl.querySelector('[data-ov]')?.addEventListener('click',()=>select('overview'));
+  dayEl.querySelectorAll('[data-inc]').forEach(cb=>cb.addEventListener('change',()=>{
+    const set=defaultChosen(d); cb.checked?set.add(cb.dataset.inc):set.delete(cb.dataset.inc); refreshGm(d);
+  }));
 }
 
+function gmBlock(d){
+  if(d.train) return '';
+  const a=gmDirections(d,true), b=gmDirections(d,false); if(!a) return '';
+  const {origin,dest}=dayEndpoints(d);
+  return '<div class="gm" id="gm"><span class="lbl">Send today to Google Maps</span>'
+    +'<a class="primary" target="_blank" rel="noopener" href="'+a.url+'">Route with the ticked stops ('+a.n+')</a>'
+    +'<a target="_blank" rel="noopener" href="'+b.url+'">Direct, no stops</a>'
+    +'<small>Opens the Google Maps app with the stops in order as coordinate pins; tick or untick "route" next to any item above to change what is sent. Google allows 9 stops, so optional ones are dropped first.</small></div>';
+}
+function refreshGm(d){ const el=document.getElementById('gm'); if(!el) return; el.outerHTML=gmBlock(d); }
 function renderOverview(){
   let h='<div class="ov"><h2>Turkey by car, 10 nights</h2><p class="sub">Antalya to Istanbul the long way: the Lycian coast, Göbekli Tepe, Nemrut, Gaziantep, Cappadocia, Konya, then the train. About 2,100 km. Tap a day.</p>';
   h+='<div class="top5"><b>The five that justify the route</b>Göbekli Tepe · Nemrut at sunset · Balıklıgöl at dusk · the Cappadocia balloons · Hagia Sophia</div>';
@@ -611,7 +693,7 @@ function renderOverview(){
     const musts=[]; d.slots.forEach(sl=>{ if(sl.p&&sl.p.tier==='m') musts.push(sl.p.name.replace(/,.*$|\(.*$/,'').trim()); });
     h+='<button class="ovday" data-day="'+d.id+'"><i class="ind night pin">'+nightNum[d.id]+'</i><div>';
     h+='<div class="l1"><b>'+esc(d.tab[0])+' · '+esc(d.title)+'</b><small>'+esc(d.sub.split('·')[1]?d.sub.split('·')[1].trim():d.sub)+'</small></div>';
-    h+='<div class="l2">'+(d.night?'Sleep: '+esc(d.tab[1]):'Flight 19:00')+'</div>';
+    h+='<div class="l2">'+(d.night?'Sleep: '+esc(d.tab[1]):'Flight 19:00')+(!d.train&&d.route.length>1?' <span class="rt" data-rt="'+d.id+'">'+esc(rtText(d.id))+'</span>':'')+'</div>';
     if(musts.length) h+='<div class="l3">'+musts.map(m=>'<span><i class="ind m"></i>'+esc(m)+'</span>').join('')+'</div>';
     h+='</div></button>';
   });
