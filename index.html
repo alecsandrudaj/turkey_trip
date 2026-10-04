@@ -187,7 +187,7 @@ const C = {
   alanya:[32.00,36.54], anamur:[32.84,36.08], aydincik:[33.32,36.14], silifke:[33.93,36.38], kizkalesi:[34.15,36.46],
   mersin:[34.63,36.80], tarsus:[34.90,36.92], adana:[35.32,37.00], osmaniye:[36.25,37.07], gaziantepbypass:[37.30,37.15],
   urfa:[38.79,37.16], gobekli:[38.92,37.22], hilvan:[38.95,37.59], adiyaman:[38.28,37.76], kahta:[38.6190,37.7850],
-  cendere:[38.6075,37.9360], karadut:[38.7637,37.9316], nemrut:[38.7430,37.9775], halfeti:[37.87,37.25], nizip:[37.80,37.01],
+  cendere:[38.6075,37.9360], karadut:[38.7637,37.9316], nemrut:[38.7445,37.9760], halfeti:[37.87,37.25], nizip:[37.80,37.01],
   gaziantep:[37.38,37.07], maras:[36.93,37.58], goksun:[36.50,38.03], pinarbasi:[36.39,38.72], kayseri:[35.48,38.72],
   goreme:[34.83,38.64], uchisar:[34.80,38.63], derinkuyu:[34.73,38.37], urgup:[34.91,38.63], nevsehir:[34.71,38.63],
   aksaray:[34.03,38.37], sultanhani:[33.55,38.25], konya:[32.49,37.87], eskisehir:[30.52,39.78], istanbul:[28.98,41.01],
@@ -207,7 +207,7 @@ const C = {
   hagia:[28.980,41.0086], bluemosque:[28.9768,41.0054], cistern:[28.9777,41.0084], grandbazaar:[28.968,41.0106], topkapi:[28.983,41.0115],
   suleymaniye:[28.964,41.016], spice:[28.970,41.0166], archmuseum:[28.981,41.0117], tiam:[28.975,41.006], hippodrome:[28.975,41.0057],
   sillev:[32.40,37.93], olympos2:[30.47,36.40], kalkoy:[29.86,36.19], ucagiz:[29.85,36.20], sogutlucesme:[29.04,40.99], halkali:[28.77,41.02],
-  kizkalesibeach:[34.15,36.46], korykos:[34.14,36.465], siverek:[39.32,37.75], nissibi:[38.90,37.79]
+  kizkalesibeach:[34.15,36.46], korykos:[34.14,36.465], siverek:[39.3160,37.7540], nissibi:[38.9540,37.8520], nemrutroad:[38.7560,37.9560]
 };
 
 const T = {m:'must',w:'worth',o:'optional'};
@@ -295,7 +295,7 @@ const days = [
   buffer:'Buffer 30 min; the tightest day. If the museum is missed it can only be done tomorrow 09:00–10:00 by leaving the hotel at 09:00, otherwise let it go.'},
 
 { id:'mon12', stay:"Karadut village, the last settlement below the summit (Karadut Pension, Euphrat, Nemrut Kervansaray); basic rooms, dinner included, 30 min from the top. Kâhta town has proper hotels but is 1 h from the summit, which breaks the sunset timing.", tab:['Mon 12','Nemrut'], title:'Göbekli Tepe → Nemrut Dağı', sub:'≈ 190 km · 3 h padded · across the Atatürk Dam lake',
-  night:'karadut', route:['urfa','gobekli','hilvan','siverek','nissibi','kahta','cendere','karadut','nemrut'],
+  night:'karadut', route:['urfa','gobekli','hilvan','siverek','nissibi','kahta','cendere','karadut'], climb:['karadut','nemrutroad','nemrut'],
   pois:[['gobekli','Göbekli Tepe','m'],['nemrut','Nemrut','m'],['cendere','Cendere','w'],['karahantepe','Karahantepe','o'],['harran','Harran','o']],
   deadline:'Summit by 17:45 for the 18:05 sunset. Leave Karadut 17:00, arrive Karadut 16:30, leave Siverek by 14:45, leave Göbekli Tepe by 12:45.',
   slots:[
@@ -482,6 +482,12 @@ days.forEach(d=>{
       legs[d.id].setStyle({dashArray:null});
     }).catch(()=>{ legs[d.id].setStyle({dashArray:'2 6'}); });
 });
+// mountain climbs the road router can't handle: drawn as their own dashed segment
+days.forEach(d=>{
+  if(!d.climb) return;
+  const pl=L.polyline(d.climb.map(LL),{color:'#1E3F8A',weight:3,opacity:.25,dashArray:'3 6',lineJoin:'round'}).addTo(legLayer);
+  legs[d.id+'-climb']=pl;
+});
 // intermediate waypoints (route points that are not night stops) as small grey points
 const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'Kumluca',alanya:'Alanya',anamur:'Anamur',aydincik:'Aydıncık',silifke:'Silifke',mersin:'Mersin',tarsus:'Tarsus',adana:'Adana',osmaniye:'Osmaniye',gaziantepbypass:'Gaziantep bypass',hilvan:'Hilvan',adiyaman:'Adıyaman',siverek:'Siverek',kahta:'Kâhta',nizip:'Nizip',maras:'Kahramanmaraş',goksun:'Göksun',pinarbasi:'Pınarbaşı',kayseri:'Kayseri',nevsehir:'Nevşehir',aksaray:'Aksaray',eskisehir:'Eskişehir'};
 const seen=new Set();
@@ -525,7 +531,7 @@ days.forEach(d=>{
 
 function mapSelect(id){
   if(id==='overview'){
-    for(const k in legs){ const dd=days.find(x=>x.id===k); legs[k].setStyle({opacity:.85,weight:3.5,color:dd.train?'#5B6E9E':'#1E3F8A'}); }
+    for(const k in legs){ const dd=days.find(x=>x.id===k.replace('-climb','')); legs[k].setStyle({opacity:.85,weight:3.5,color:dd&&dd.train?'#5B6E9E':'#1E3F8A'}); }
     document.querySelectorAll('.poipin').forEach(el=>{el.classList.remove('on');el.classList.toggle('all',el.classList.contains('m')&&!el.classList.contains('alt'));});
     document.querySelectorAll('.nightpin').forEach(el=>el.classList.add('active'));
     const all=[]; for(const k in C) if(nightKeys.has(k)) all.push(LL(k));
@@ -534,7 +540,7 @@ function mapSelect(id){
   }
   document.querySelectorAll('.poipin').forEach(el=>el.classList.remove('all'));
   const d=days.find(x=>x.id===id);
-  for(const k in legs) legs[k].setStyle({opacity:k===id?1:.25,weight:k===id?5:3,color:k===id?(d.train?'#5B6E9E':'#1E3F8A'):'#1E3F8A'});
+  for(const k in legs){ const on=(k===id||k===id+'-climb'); legs[k].setStyle({opacity:on?1:.25,weight:on?(k.endsWith('-climb')?4:5):3,color:on?(d.train?'#5B6E9E':'#1E3F8A'):'#1E3F8A'}); }
   document.querySelectorAll('.poipin').forEach(el=>el.classList.toggle('on',el.dataset.day===id));
   document.querySelectorAll('.nightpin').forEach(el=>el.classList.remove('active'));
   const i=days.indexOf(d);
@@ -542,7 +548,7 @@ function mapSelect(id){
   if(id==='thu8') on.push('ayt'); if(id==='sun18') on.push('istanbul');
   on.forEach(k=>{const el=document.getElementById('np-'+k);el&&el.classList.add('active');});
   // fit to this day's route + its objectives
-  const pts=d.route.map(LL).concat(poiMarkers.filter(p=>p.day===id).map(p=>p.marker.getLatLng()));
+  const pts=d.route.concat(d.climb||[]).map(LL).concat(poiMarkers.filter(p=>p.day===id).map(p=>p.marker.getLatLng()));
   if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(id==='thu15'||id==='sun18'?0.25:0.12),{animate:booted,maxZoom:id==='sun18'?15:13});
 }
 /* ---------- tabs + panel ---------- */
