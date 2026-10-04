@@ -60,14 +60,15 @@ header h1{font-family:var(--serif);font-weight:600;font-size:22px;margin:0;lette
 header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var(--ink-2);margin-left:10px}
 .legend{display:flex;gap:14px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap;align-items:center}
 .legend span{display:inline-flex;align-items:center;gap:6px}
-/* one indicator vocabulary, used in legend, schedule and map */
-.ind{display:inline-block;width:11px;height:11px;border-radius:50%;box-sizing:border-box;background:var(--panel);border:2.5px solid var(--opt);flex:none}
-.ind.m{background:var(--must);border-color:var(--must)}
-.ind.w{border-color:var(--worth)}
-.ind.o{border-color:var(--opt)}
-.ind.alt{border-style:dashed}
-.ind.night{width:16px;height:16px;border:2px solid var(--route);background:var(--panel);color:var(--route);font:600 9px/12px var(--sans);text-align:center}
-.ind.town{width:8px;height:8px;border:1.5px solid #6B7585}
+/* one indicator vocabulary, used in legend, schedule and map:
+   shape+colour = importance (circle must, diamond worth, square optional); filled = in the plan, hollow = alternative */
+.ind{display:inline-block;box-sizing:border-box;flex:none;border:2px solid var(--opt);background:var(--opt)}
+.ind.m{width:13px;height:13px;border-radius:50%;border-color:var(--must);background:var(--must)}
+.ind.w{width:11px;height:11px;border-radius:2px;transform:rotate(45deg);border-color:var(--worth);background:var(--worth)}
+.ind.o{width:10px;height:10px;border-radius:1.5px;border-color:var(--opt);background:var(--opt)}
+.ind.alt{background:var(--panel)!important}
+.ind.night{width:16px;height:16px;border-radius:50%;border:2px solid var(--route);background:var(--panel);color:var(--route);font:600 9px/12px var(--sans);text-align:center;transform:none}
+.ind.town{width:7px;height:7px;border-radius:50%;border:0;background:#4D5A6A}
 .ind.line{width:18px;height:0;border:0;border-top:3px solid var(--route);border-radius:0}
 .ind.line.train{border-top-style:dashed}
 
@@ -78,12 +79,13 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .mapnote{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--ink-3);font-style:italic;font-family:var(--serif);z-index:500;background:color-mix(in srgb,var(--panel) 80%,transparent);padding:2px 6px;border-radius:4px}
 .nightpin{width:26px;height:26px;border-radius:50%;background:var(--panel);border:2.5px solid var(--route);color:var(--route);font:600 11px/21px var(--sans);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:all .2s}
 .nightpin.active{background:var(--route);border-color:var(--route);color:var(--tab-ink);transform:scale(1.12)}
-.poipin{width:13px;height:13px;border-radius:50%;box-sizing:border-box;background:var(--panel);border:2.5px solid var(--opt);box-shadow:0 1px 2px rgba(0,0,0,.3);opacity:.45;transition:opacity .2s,transform .2s}
-.poipin.m{border-color:var(--must);background:var(--must)}
-.poipin.w{border-color:var(--worth)}
-.poipin.o{border-color:var(--opt)}
-.poipin.alt{border-style:dashed;background:var(--panel)}
-.poipin.on{opacity:1;transform:scale(1.25)}
+.poipin{box-sizing:border-box;border:2px solid var(--opt);background:var(--opt);box-shadow:0 1px 2px rgba(0,0,0,.35);opacity:.45;transition:opacity .2s,transform .2s}
+.poipin.m{width:15px;height:15px;border-radius:50%;border-color:var(--must);background:var(--must)}
+.poipin.w{width:12px;height:12px;border-radius:2px;transform:rotate(45deg);border-color:var(--worth);background:var(--worth)}
+.poipin.o{width:11px;height:11px;border-radius:1.5px;border-color:var(--opt);background:var(--opt)}
+.poipin.alt{background:var(--panel)}
+.poipin.on{opacity:1}
+.poipin.on.m{transform:scale(1.2)} .poipin.on.w{transform:rotate(45deg) scale(1.2)} .poipin.on.o{transform:scale(1.2)}
 .poipin.all{opacity:.9}
 .leaflet-popup-content-wrapper{background:var(--panel);color:var(--ink);border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
 .leaflet-popup-tip{background:var(--panel)}
@@ -116,7 +118,8 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .slot:first-of-type{border-top:0}
 .slot .t{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:13px;padding-top:2px;line-height:1.35}
 .item{position:relative;padding-left:19px}
-.item>.ind{position:absolute;left:0;top:6px}
+.item>.ind{position:absolute;left:1px;top:6px}
+.item.w>.ind{left:2px;top:7px} .item.o>.ind{left:2px;top:7px}
 .item.n{padding-left:0;color:var(--ink-2)}
 .item .name{font-weight:600}
 .item .d{color:var(--ink-2);font-size:13.5px}
@@ -160,7 +163,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <div class="app">
   <header>
     <h1>Turkey by car<small>8 – 18 October 2026</small></h1>
-    <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind alt o"></i>alternative</span><span><i class="ind night">3</i>night stop</span></div>
+    <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
   <div class="mapwrap">
@@ -483,7 +486,7 @@ const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'K
 const seen=new Set();
 days.forEach(d=>d.route.forEach(k=>{
   if(nightKeys.has(k)||seen.has(k)||!wpLabels[k]) return; seen.add(k);
-  L.circleMarker(LL(k),{radius:3,color:'#6B7585',weight:1.5,fillColor:'#FFFFFF',fillOpacity:1}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]}).bindPopup('<div class="pp-name">'+wpLabels[k]+'</div><div class="pp-alt">town on the route, no stop planned</div>');
+  L.circleMarker(LL(k),{radius:3.5,stroke:false,fillColor:'#4D5A6A',fillOpacity:.9}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]}).bindPopup('<div class="pp-name">'+wpLabels[k]+'</div><div class="pp-alt">town on the route, no stop planned</div>');
 }));
 
 // night stops
@@ -505,9 +508,10 @@ days.forEach(d=>{
       if(!it.at||!C[it.at]) return;
       const tier=it.tier&&it.tier!=='n'?it.tier:'o';
       const html='<div class="poipin '+tier+(isAlt?' alt':'')+'" data-day="'+d.id+'"></div>';
-      const mk=L.marker(LL(it.at),{icon:L.divIcon({className:'',html,iconSize:[12,12],iconAnchor:[6,6]}),zIndexOffset:tier==='m'?500:tier==='w'?300:100,title:it.name}).addTo(map);
-      let pp='<div class="pp-day">'+esc(d.tab[0])+' · '+esc(s.t)+'</div><div class="pp-name">'+esc(it.name)+(it.tier&&it.tier!=='n'?'<span class="pp-tag '+it.tier+'">'+tierName[it.tier]+'</span>':'')+'</div>';
-      if(isAlt) pp+='<div class="pp-alt">alternative for this slot</div>';
+      const sz=tier==='m'?15:tier==='w'?12:11;
+      const mk=L.marker(LL(it.at),{icon:L.divIcon({className:'',html,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]}),zIndexOffset:tier==='m'?500:tier==='w'?300:100,title:it.name}).addTo(map);
+      let pp='<div class="pp-day">'+esc(d.tab[0])+' · '+esc(s.t)+'</div><div class="pp-name">'+esc(it.name)+(it.tier&&it.tier!=='n'?'<span class="pp-tag '+it.tier+'">'+tierName[it.tier]+(isAlt?', alternative':'')+'</span>':'')+'</div>';
+      if(isAlt) pp+='<div class="pp-alt">not in the plan by default; swaps with the primary choice in this slot</div>';
       if(it.d) pp+='<div class="pp-d">'+esc(it.d)+(it.dur?' <span style="color:var(--ink-3)">('+esc(it.dur)+')</span>':'')+'</div>';
       if(it.cost) pp+='<div class="pp-cost">'+esc(it.cost)+'</div>';
       pp+='<a class="pp-go" href="#" data-go="'+d.id+'">Open '+esc(d.tab[0])+' →</a>';
@@ -596,7 +600,7 @@ function renderOverview(){
     if(musts.length) h+='<div class="l3">'+musts.map(m=>'<span><i class="ind m"></i>'+esc(m)+'</span>').join('')+'</div>';
     h+='</div></button>';
   });
-  h+='<div class="keys"><span><i class="ind m"></i>must-see, the reason the day exists</span><span><i class="ind w"></i>worth it, if the day is on schedule</span><span><i class="ind o"></i>optional, first to drop</span><span><i class="ind alt o"></i>alternative for the same time slot</span><span><i class="ind night">3</i>where you sleep that night</span><span><i class="ind town"></i>town you drive through</span><span><i class="ind line"></i>drive, follows real roads when online</span><span><i class="ind line train"></i>train</span></div></div>';
+  h+='<div class="keys"><span><i class="ind m"></i>must-see, the reason the day exists</span><span><i class="ind w"></i>worth it, if the day is on schedule</span><span><i class="ind o"></i>optional, first to drop</span><span><i class="ind w alt"></i>hollow = alternative for the same time slot, any shape</span><span><i class="ind night">3</i>where you sleep that night</span><span><i class="ind town"></i>town you drive through</span><span><i class="ind line"></i>drive, follows real roads when online</span><span><i class="ind line train"></i>train</span></div></div>';
   dayEl.innerHTML=h;
   dayEl.querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>select(b.dataset.day)));
 }
