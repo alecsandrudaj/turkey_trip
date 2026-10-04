@@ -58,23 +58,33 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--route);out
 header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:14px 20px 10px;border-bottom:1px solid var(--line)}
 header h1{font-family:var(--serif);font-weight:600;font-size:22px;margin:0;letter-spacing:-.01em}
 header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var(--ink-2);margin-left:10px}
-.legend{display:flex;gap:14px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
-.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
-.legend .m::before{background:var(--must)} .legend .w::before{background:var(--worth)} .legend .o::before{background:var(--opt)}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+/* one indicator vocabulary, used in legend, schedule and map */
+.ind{display:inline-block;width:11px;height:11px;border-radius:50%;box-sizing:border-box;background:var(--panel);border:2.5px solid var(--opt);flex:none}
+.ind.m{background:var(--must);border-color:var(--must)}
+.ind.w{border-color:var(--worth)}
+.ind.o{border-color:var(--opt)}
+.ind.alt{border-style:dashed}
+.ind.night{width:16px;height:16px;border:2px solid var(--route);background:var(--panel);color:var(--route);font:600 9px/12px var(--sans);text-align:center}
+.ind.town{width:8px;height:8px;border:1.5px solid #6B7585}
+.ind.line{width:18px;height:0;border:0;border-top:3px solid var(--route);border-radius:0}
+.ind.line.train{border-top-style:dashed}
 
 .mapwrap{position:relative;background:var(--sea)}
 #map{width:100%;height:58vh;min-height:320px}
 @media (min-width:960px){#map{flex:1;height:100%}}
 .leaflet-container{font-family:var(--sans);background:var(--sea)}
 .mapnote{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--ink-3);font-style:italic;font-family:var(--serif);z-index:500;background:color-mix(in srgb,var(--panel) 80%,transparent);padding:2px 6px;border-radius:4px}
-.nightpin{width:26px;height:26px;border-radius:50%;background:var(--panel);border:2.5px solid var(--route-dim);color:var(--ink-2);font:600 11px/21px var(--sans);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:all .2s}
+.nightpin{width:26px;height:26px;border-radius:50%;background:var(--panel);border:2.5px solid var(--route);color:var(--route);font:600 11px/21px var(--sans);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:all .2s}
 .nightpin.active{background:var(--route);border-color:var(--route);color:var(--tab-ink);transform:scale(1.12)}
-.poipin{width:12px;height:12px;border-radius:50%;background:var(--panel);border:2.5px solid var(--opt);box-shadow:0 1px 2px rgba(0,0,0,.3);opacity:.45;transition:opacity .2s,transform .2s}
+.poipin{width:13px;height:13px;border-radius:50%;box-sizing:border-box;background:var(--panel);border:2.5px solid var(--opt);box-shadow:0 1px 2px rgba(0,0,0,.3);opacity:.45;transition:opacity .2s,transform .2s}
 .poipin.m{border-color:var(--must);background:var(--must)}
 .poipin.w{border-color:var(--worth)}
 .poipin.o{border-color:var(--opt)}
 .poipin.alt{border-style:dashed;background:var(--panel)}
 .poipin.on{opacity:1;transform:scale(1.25)}
+.poipin.all{opacity:.9}
 .leaflet-popup-content-wrapper{background:var(--panel);color:var(--ink);border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
 .leaflet-popup-tip{background:var(--panel)}
 .leaflet-popup-content{margin:12px 14px;font-size:13.5px;line-height:1.45;max-width:260px}
@@ -87,7 +97,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .pp-cost{color:var(--ink-3);font-style:italic;font-size:12.5px;margin-top:4px}
 .pp-go{margin-top:8px;font-size:12.5px;color:var(--route);text-decoration:none}
 .leaflet-control-attribution{font-size:10px}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--line);scrollbar-width:none;background:var(--bg)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--line);scrollbar-width:none;background:var(--bg);position:sticky;top:0;z-index:5}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink-2);background:var(--panel);display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;min-width:74px}
 .tab b{font-weight:600;color:var(--ink);font-size:13.5px}
@@ -105,10 +115,8 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .slot{display:grid;grid-template-columns:62px 1fr;gap:0 14px;padding:12px 0;border-top:1px solid var(--line)}
 .slot:first-of-type{border-top:0}
 .slot .t{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:13px;padding-top:2px;line-height:1.35}
-.item{position:relative;padding-left:16px}
-.item::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
-.item.m::before{background:var(--must)} .item.w::before{background:var(--worth)} .item.o::before{background:var(--opt)}
-.item.n::before{display:none}
+.item{position:relative;padding-left:19px}
+.item>.ind{position:absolute;left:0;top:6px}
 .item.n{padding-left:0;color:var(--ink-2)}
 .item .name{font-weight:600}
 .item .d{color:var(--ink-2);font-size:13.5px}
@@ -121,6 +129,26 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .alts .item{margin-top:8px;font-size:14px}
 .alts .cost{display:block;color:var(--ink-3);font-size:12.5px;font-style:italic;margin-top:1px}
 .buffer{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2);font-style:italic;font-family:var(--serif);line-height:1.5}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px;font-size:13px;color:var(--ink-2)}
+.daynav button{border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;color:var(--ink);background:var(--panel)}
+.daynav button:disabled{opacity:.35;cursor:default}
+.daynav .back{color:var(--route);border:0;padding:6px 0}
+.ov h2{font-family:var(--serif);font-weight:600;font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+.ov .sub{color:var(--ink-2);font-size:14px;margin:0 0 16px}
+.ov .top5{margin:0 0 18px;padding:12px 14px;border-radius:10px;background:var(--bg);font-size:13.5px;line-height:1.5}
+.ov .top5 b{font-weight:600;display:block;margin-bottom:4px}
+.ovday{display:grid;grid-template-columns:28px 1fr;gap:0 12px;padding:10px 8px 10px 4px;border-top:1px solid var(--line);text-align:left;width:100%;border-radius:8px}
+.ovday:hover{background:var(--bg)}
+.ovday:first-of-type{border-top:0}
+.ovday .pin{justify-self:center;margin-top:3px}
+.ovday .l1{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.ovday .l1 b{font-weight:600}
+.ovday .l1 small{color:var(--ink-3);font-size:12px;white-space:nowrap}
+.ovday .l2{color:var(--ink-2);font-size:13px;margin-top:1px}
+.ovday .l3{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font-size:12.5px;color:var(--ink-2)}
+.ovday .l3 span{display:inline-flex;align-items:center;gap:5px}
+.ov .keys{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:grid;gap:6px}
+.ov .keys span{display:inline-flex;align-items:center;gap:8px}
 .nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
 .nav button{border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13.5px;color:var(--ink)}
 .nav button:disabled{opacity:.4;cursor:default}
@@ -132,12 +160,12 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <div class="app">
   <header>
     <h1>Turkey by car<small>8 – 18 October 2026</small></h1>
-    <div class="legend"><span class="m">must-see</span><span class="w">worth it</span><span class="o">optional</span><span style="color:var(--ink-3)">dashed = alternative</span></div>
+    <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind alt o"></i>alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
   <div class="mapwrap">
     <div id="map" role="region" aria-label="Route map"></div>
-    <div class="mapnote">Routes follow real roads when online. Solid dots are in the plan, dashed rings are alternatives, small grey points are towns you pass.</div>
+    <div class="mapnote">Tap a night pin for its day, any dot for details.</div>
   </div>
 
   <div class="panel">
@@ -455,7 +483,7 @@ const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'K
 const seen=new Set();
 days.forEach(d=>d.route.forEach(k=>{
   if(nightKeys.has(k)||seen.has(k)||!wpLabels[k]) return; seen.add(k);
-  L.circleMarker(LL(k),{radius:3,color:'#6B7585',weight:1.5,fillColor:'#FFFFFF',fillOpacity:1}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]});
+  L.circleMarker(LL(k),{radius:3,color:'#6B7585',weight:1.5,fillColor:'#FFFFFF',fillOpacity:1}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]}).bindPopup('<div class="pp-name">'+wpLabels[k]+'</div><div class="pp-alt">town on the route, no stop planned</div>');
 }));
 
 // night stops
@@ -491,6 +519,15 @@ days.forEach(d=>{
 });
 
 function mapSelect(id){
+  if(id==='overview'){
+    for(const k in legs){ const dd=days.find(x=>x.id===k); legs[k].setStyle({opacity:.85,weight:3.5,color:dd.train?'#5B6E9E':'#1E3F8A'}); }
+    document.querySelectorAll('.poipin').forEach(el=>{el.classList.remove('on');el.classList.toggle('all',el.classList.contains('m')&&!el.classList.contains('alt'));});
+    document.querySelectorAll('.nightpin').forEach(el=>el.classList.add('active'));
+    const all=[]; for(const k in C) if(nightKeys.has(k)) all.push(LL(k));
+    map.fitBounds(L.latLngBounds(all).pad(0.08),{animate:booted});
+    return;
+  }
+  document.querySelectorAll('.poipin').forEach(el=>el.classList.remove('all'));
   const d=days.find(x=>x.id===id);
   for(const k in legs) legs[k].setStyle({opacity:k===id?1:.25,weight:k===id?5:3,color:k===id?(d.train?'#5B6E9E':'#1E3F8A'):'#1E3F8A'});
   document.querySelectorAll('.poipin').forEach(el=>el.classList.toggle('on',el.dataset.day===id));
@@ -505,6 +542,7 @@ function mapSelect(id){
 }
 /* ---------- tabs + panel ---------- */
 const tabs=document.getElementById('tabs'), dayEl=document.getElementById('day');
+{ const b=document.createElement('button');b.className='tab';b.id='tab-overview';b.setAttribute('role','tab');b.innerHTML='<b>All</b><small>overview</small>';b.addEventListener('click',()=>select('overview'));tabs.appendChild(b); }
 days.forEach(d=>{
   const b=document.createElement('button');b.className='tab';b.id='tab-'+d.id;b.setAttribute('role','tab');
   b.innerHTML='<b>'+d.tab[0]+'</b><small>'+d.tab[1]+'</small>';
@@ -512,8 +550,9 @@ days.forEach(d=>{
 });
 
 function itemHTML(it,alt){
-  const cls='item '+(it.n?'n':(it.tier||'n'));
-  let h='<div class="'+cls+'">';
+  const tier=it.n?'n':(it.tier||'n');
+  let h='<div class="item '+tier+'">';
+  if(tier!=='n') h+='<i class="ind '+tier+(alt?' alt':'')+'"></i>';
   h+='<span class="name">'+esc(it.name)+'</span>';
   if(it.dur) h+='<span class="dur">'+esc(it.dur)+'</span>';
   if(it.d) h+='<div class="d">'+esc(it.d)+'</div>';
@@ -521,7 +560,9 @@ function itemHTML(it,alt){
   return h+'</div>';
 }
 function render(d){
-  let h='<h2>'+esc(d.title)+'</h2><p class="sub">'+esc(d.sub)+'</p>';
+  const i=days.indexOf(d);
+  let h='<div class="daynav"><button class="back" data-ov>← Overview</button><span>Day '+(i+1)+' of '+days.length+'</span><span><button data-prev '+(i===0?'disabled':'')+' aria-label="Previous day">‹</button> <button data-next '+(i===days.length-1?'disabled':'')+' aria-label="Next day">›</button></span></div>';
+  h+='<h2>'+esc(d.title)+'</h2><p class="sub">'+esc(d.sub)+'</p>';
   if(d.stay) h+='<p class="stay">'+esc(d.stay)+'</p>';
   h+='<div class="deadline"><b>Hard deadline.</b> '+esc(d.deadline)+'</div>';
   d.slots.forEach(s=>{
@@ -534,25 +575,52 @@ function render(d){
     h+='</div></div>';
   });
   if(d.buffer) h+='<div class="buffer">'+esc(d.buffer)+'</div>';
-  const i=days.indexOf(d);
   h+='<div class="nav"><button id="prev" '+(i===0?'disabled':'')+'>← '+(i>0?esc(days[i-1].tab[0]):'')+'</button><button id="next" '+(i===days.length-1?'disabled':'')+'>'+(i<days.length-1?esc(days[i+1].tab[0]):'')+' →</button></div>';
   dayEl.innerHTML=h;
   dayEl.querySelector('#prev')?.addEventListener('click',()=>select(days[i-1].id));
   dayEl.querySelector('#next')?.addEventListener('click',()=>select(days[i+1].id));
+  dayEl.querySelector('[data-prev]')?.addEventListener('click',()=>select(days[i-1].id));
+  dayEl.querySelector('[data-next]')?.addEventListener('click',()=>select(days[i+1].id));
+  dayEl.querySelector('[data-ov]')?.addEventListener('click',()=>select('overview'));
+}
+
+function renderOverview(){
+  let h='<div class="ov"><h2>Turkey by car, 10 nights</h2><p class="sub">Antalya to Istanbul the long way: the Lycian coast, Göbekli Tepe, Nemrut, Gaziantep, Cappadocia, Konya, then the train. About 2,100 km. Tap a day.</p>';
+  h+='<div class="top5"><b>The five that justify the route</b>Göbekli Tepe · Nemrut at sunset · Balıklıgöl at dusk · the Cappadocia balloons · Hagia Sophia</div>';
+  const nightNum={thu8:'1',fri9:'2',sat10:'3',sun11:'4',mon12:'5',tue13:'6',wed14:'7',thu15:'8',fri16:'9',sat17:'10',sun18:'✈'};
+  days.forEach(d=>{
+    const musts=[]; d.slots.forEach(sl=>{ if(sl.p&&sl.p.tier==='m') musts.push(sl.p.name.replace(/,.*$|\(.*$/,'').trim()); });
+    h+='<button class="ovday" data-day="'+d.id+'"><i class="ind night pin">'+nightNum[d.id]+'</i><div>';
+    h+='<div class="l1"><b>'+esc(d.tab[0])+' · '+esc(d.title)+'</b><small>'+esc(d.sub.split('·')[1]?d.sub.split('·')[1].trim():d.sub)+'</small></div>';
+    h+='<div class="l2">'+(d.night?'Sleep: '+esc(d.tab[1]):'Flight 19:00')+'</div>';
+    if(musts.length) h+='<div class="l3">'+musts.map(m=>'<span><i class="ind m"></i>'+esc(m)+'</span>').join('')+'</div>';
+    h+='</div></button>';
+  });
+  h+='<div class="keys"><span><i class="ind m"></i>must-see, the reason the day exists</span><span><i class="ind w"></i>worth it, if the day is on schedule</span><span><i class="ind o"></i>optional, first to drop</span><span><i class="ind alt o"></i>alternative for the same time slot</span><span><i class="ind night">3</i>where you sleep that night</span><span><i class="ind town"></i>town you drive through</span><span><i class="ind line"></i>drive, follows real roads when online</span><span><i class="ind line train"></i>train</span></div></div>';
+  dayEl.innerHTML=h;
+  dayEl.querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>select(b.dataset.day)));
 }
 
 let current=null, booted=false;
 function select(id){
-  const d=days.find(x=>x.id===id); if(!d) return; current=id;
+  const d=id==='overview'?null:days.find(x=>x.id===id); if(id!=='overview'&&!d) return; current=id;
   mapSelect(id);
   tabs.querySelectorAll('.tab').forEach(t=>{const on=t.id==='tab-'+id;t.classList.toggle('active',on);t.setAttribute('aria-selected',on);});
   document.getElementById('tab-'+id)?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
-  render(d);
+  if(d) render(d); else renderOverview();
+  document.querySelector('.panel').scrollTop=0;
   if(booted&&window.innerWidth<960) document.querySelector('.panel').scrollIntoView({behavior:'smooth',block:'start'});
   try{localStorage.setItem('tr-day',id);}catch(e){}
 }
-let start='thu8';
-try{const s=localStorage.getItem('tr-day');if(s&&days.some(d=>d.id===s))start=s;}catch(e){}
+// keyboard: ← → move between days, Esc back to overview
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,textarea')) return;
+  const i=days.findIndex(x=>x.id===current);
+  if(e.key==='ArrowRight'){ select(i<0?days[0].id:days[Math.min(i+1,days.length-1)].id); }
+  else if(e.key==='ArrowLeft'){ if(i>0) select(days[i-1].id); else select('overview'); }
+  else if(e.key==='Escape'){ select('overview'); }
+});
+let start='overview';
 // no scroll on first paint
 select(start); booted=true;
 </script>
