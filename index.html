@@ -232,7 +232,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 33</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 37</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -258,7 +258,7 @@ const CSE_ID='b029a9e28305a4069';
 const BACKEND_URL='https://script.google.com/macros/s/AKfycbyi3zyPovWJ0Y29CDxum5BWvkjvgllf2AxuaOnHrpQbdHz9JfytrRSDIDqXz4lB-QQ6Ng/exec';
 const BACKEND_PIN='';   // leave empty here if you prefer to type it once per device
 const STAY_DEFAULTS={minRating:4.0,minReviews:200,adults:4,rooms:2,maxPrice:150,results:0,sort:'reviews',showExcluded:false,
-  terms:'bed bugs, bedbugs, tahtakurusu, tahta kurusu, kene, tick bites, böcek, beetles, hamam böceği, cockroach, pire, fleas, bites'};
+  terms:'bed bugs, bedbugs, tahtakurusu, tahta kurusu, kene, tick bites, böcek, beetles, insects, insect, bugs, haşere, hamam böceği, cockroach, roach, pire, fleas, mites, akar, bites'};
 
 /* ---------- itinerary ---------- */
 // coordinates as [lon,lat]
@@ -865,11 +865,14 @@ async function webCheck(name,city,st){
   }
   cacheSet(k,out); return out;
 }
-const bookingParams=(cfg,st)=>'&checkin='+cfg.checkin+'&checkout='+cfg.checkout+'&group_adults='+st.adults+'&no_rooms='+st.rooms+'&group_children=0&selected_currency=EUR&lang=en-gb&nflt='+encodeURIComponent('price=EUR-min-'+(st.maxPrice*st.rooms)+'-1;fc=2;tdb=3');
+// Booking filter codes: price=EUR-min-<max>-1 (per night, whole party), review_score=80 (8+), tdb=2 (twin beds)
+const bookingParams=(cfg,st)=>'&checkin='+cfg.checkin+'&checkout='+cfg.checkout+'&group_adults='+st.adults+'&no_rooms='+st.rooms+'&group_children=0&selected_currency=EUR&lang=en-gb&nflt='+encodeURIComponent('price=EUR-min-'+(st.maxPrice*st.rooms)+'-1;review_score=80;tdb=2');
+// experimental: Booking's private app scheme, same parameters as the web search plus the filters
+const bookingAppURL=(ss,cfg,st)=>'booking://searchresults?ss='+encodeURIComponent(ss)+'&checkin='+cfg.checkin+'&checkout='+cfg.checkout+'&group_adults='+st.adults+'&no_rooms='+st.rooms+'&group_children=0&nflt='+encodeURIComponent('price=EUR-min-'+(st.maxPrice*st.rooms)+'-1;review_score=80;tdb=2')+'&selected_currency=EUR';
 // one hotel: Booking resolves an exact property name as the destination and lists it first
 const bookingURL=(name,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(name)+'&dest_type=hotel'+bookingParams(cfg,st);
 // the whole area: Booking's own search with filters applied
-const bookingAreaURL=(area,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(area.label.split(',')[0]+', '+cfg.city)+'&latitude='+area.lat+'&longitude='+area.lng+'&radius='+Math.round(area.r/1000)+'&order=review_score_and_price'+bookingParams(cfg,st);
+const bookingAreaURL=(area,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(area.label.split(',')[0]+', '+cfg.city)+'&latitude='+area.lat+'&longitude='+area.lng+'&radius='+Math.round(area.r/1000)+'&order=popularity'+bookingParams(cfg,st);
 // Phones hand booking.com links to the Booking app, which drops the filters.
 // Android: an intent that targets Chrome itself opens the URL as a plain page. iOS: opening from script keeps it in Safari.
 function openWeb(url,ev){
@@ -900,7 +903,7 @@ function stayBlock(d){
     +'<select id="staySort" aria-label="Sort"><option value="reviews"'+(st.sort==='reviews'?' selected':'')+'>most reviewed</option><option value="rating"'+(st.sort==='rating'?' selected':'')+'>best rated</option></select>'
     +'<label class="budget">≤ €<input id="stayBudget" type="number" min="10" step="10" value="'+st.maxPrice+'"><span>/room</span></label>'
     +'<button class="btn primary" id="stayGo">Search</button><button class="btn icon" id="stayRefresh" title="Search again, ignoring the cache" aria-label="Refresh">↻</button></div>';
-  h+='<div class="row sub"><span><a id="bkAreaApp" class="act book" href="#">Area in Booking app</a> <a id="bkAreaWeb" data-web class="act bookweb" href="#">in browser, filtered</a></span><label class="chk"><input type="checkbox" id="stayShowEx" '+(st.showExcluded?'checked':'')+'> show excluded</label><span class="dim">score ≥ '+st.minRating+' · ≥ '+(cfg.minReviews||st.minReviews)+' reviews'+(cfg.minReviews?' (small town)':'')+(st.key||st.script?'':' · <b>set up in Settings</b>')+'</span></div>';
+  h+='<div class="row sub"><span><a id="bkAreaApp" class="act book" href="#">Area in Booking app</a> <a id="bkAreaWeb" data-web class="act bookweb" href="#">in browser, filtered</a> <a id="bkAreaX" class="act bookweb" href="#" title="Experimental: tries to pass the filters to the app through its own link scheme">app, filtered (test)</a></span><label class="chk"><input type="checkbox" id="stayShowEx" '+(st.showExcluded?'checked':'')+'> show excluded</label><span class="dim">score ≥ '+st.minRating+' · ≥ '+(cfg.minReviews||st.minReviews)+' reviews'+(cfg.minReviews?' (small town)':'')+(st.key||st.script?'':' · <b>set up in Settings</b>')+'</span></div>';
   h+='<div id="stayOut"></div></div></details>';
   return h;
 }
@@ -970,7 +973,7 @@ function render_stay(rows,excluded,cfg,area,st){
       +(r.greviews?'<span class="gs">Google: '+r.greviews.scanned+' review'+(r.greviews.scanned===1?'':'s')+' scanned, clean</span>':'')+'</div>'
       +'<div class="hact">'
       +'<a href="'+bookingURL(r.name,cfg,st)+'" class="act book" title="Open this hotel in the Booking app (dates and party applied; the app ignores filters)">Booking</a>'
-      +'<a href="'+bookingURL(r.name,cfg,st)+'" data-web class="act bookweb" title="Open in the browser with dates, party, twin beds, price cap and free cancellation applied">web</a>'
+      +'<a href="'+bookingURL(r.name,cfg,st)+'" data-web class="act bookweb" title="Open in the browser with dates, party, twin beds, score 8+ and the price cap applied">web</a>'
       +'<a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'
       +'<a target="_blank" rel="noopener" href="'+reportsURL(r.name,cfg.city,st)+'" class="act">Web</a>'
       +(w.items&&w.items.length&&stt==='possible'?'<a target="_blank" rel="noopener" href="'+esc(w.items[0].link)+'" class="act warn" title="'+esc(w.items[0].title)+'">mention</a>':'')
@@ -1065,7 +1068,7 @@ function render(d){
   dayEl.querySelector('[data-next]')?.addEventListener('click',()=>select(days[i+1].id));
   dayEl.querySelector('[data-ov]')?.addEventListener('click',()=>select('overview'));
   document.getElementById('stayGo')?.addEventListener('click',()=>runStay(d,false));
-  { const cfg=stayCfg(d); const sel=document.getElementById('stayArea'); const setA=()=>{ if(!cfg||!sel) return; const st=staySettings(); const u=bookingAreaURL(cfg.areas[+sel.value],cfg,st); const a1=document.getElementById('bkAreaApp'), a2=document.getElementById('bkAreaWeb'); if(a1) a1.href=u; if(a2) a2.href=u; }; setA(); sel?.addEventListener('change',setA); }
+  { const cfg=stayCfg(d); const sel=document.getElementById('stayArea'); const setA=()=>{ if(!cfg||!sel) return; const st=staySettings(); const u=bookingAreaURL(cfg.areas[+sel.value],cfg,st); const a1=document.getElementById('bkAreaApp'), a2=document.getElementById('bkAreaWeb'), a3=document.getElementById('bkAreaX'); if(a1) a1.href=u; if(a2) a2.href=u; if(a3) a3.href=bookingAppURL(cfg.areas[+sel.value].label.split(',')[0]+', '+cfg.city,cfg,st); }; setA(); sel?.addEventListener('change',setA); }
   document.getElementById('stayRefresh')?.addEventListener('click',()=>runStay(d,true));
   dayEl.querySelectorAll('[data-inc]').forEach(cb=>cb.addEventListener('change',()=>{
     const set=defaultChosen(d); cb.checked?set.add(cb.dataset.inc):set.delete(cb.dataset.inc); refreshGm(d);
