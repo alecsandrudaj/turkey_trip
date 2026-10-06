@@ -177,32 +177,44 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .sgrid .wide{grid-column:1/-1}
 .btn{border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--ink);background:var(--panel)}
 .btn.primary{background:var(--route);border-color:var(--route);color:var(--tab-ink)}
-.stayx{margin:-4px 0 16px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px}
-.stayx summary{cursor:pointer;font-weight:600;color:var(--ink)}
-.stayx .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 6px}
-.stayx .row label{display:flex;gap:6px;align-items:center;color:var(--ink-2);font-size:13px}
-.stayx select{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 6px;max-width:260px}
+.stayx{margin:-4px 0 16px;border:1px solid var(--line);border-radius:12px;padding:0;font-size:13.5px;overflow:hidden}
+.stayx summary{cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 14px;font-weight:600;color:var(--ink);list-style:none}
+.stayx summary::-webkit-details-marker{display:none}
+.stayx summary small{font-weight:400;color:var(--ink-3);font-size:12px;white-space:nowrap}
+.stayx[open] summary{border-bottom:1px solid var(--line)}
+.stayx-body{padding:10px 14px 12px}
+.stayx .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.stayx .row.sub{margin-top:8px;font-size:12px;color:var(--ink-3);justify-content:space-between}
+.stayx select{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:48%}
+.stayx .budget{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:8px;padding:0 8px;height:32px;font-size:13px;color:var(--ink-2)}
+.stayx .budget input{width:52px;border:0;background:transparent;font:inherit;color:var(--ink);text-align:right}
+.stayx .budget span{color:var(--ink-3);font-size:12px}
+.btn.icon{width:32px;padding:0;text-align:center;font-size:15px}
+.chk{display:inline-flex;align-items:center;gap:5px}
 .hint{font-size:12.5px;color:var(--ink-3);margin:6px 0}
-.hlist{max-height:60vh;overflow-y:auto;padding-right:4px}
-.hotel{padding:9px 0;border-top:1px solid var(--line)}
-.hotel.ex{opacity:.55}
-.hotel.ex .hl2{color:var(--must)}
-.hl1{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.hmeta{color:var(--ink-2);font-size:13px;white-space:nowrap}
-.hl2{font-size:12.5px;color:var(--ink-3);margin-top:2px}
-.hl3{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.hl3 a,.hl3 button{font-size:12.5px;color:var(--route);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--panel)}
-.ok{color:var(--worth)} .dim{color:var(--ink-3)}
-.badge{display:inline-block;font-size:11.5px;border-radius:999px;padding:1px 8px;border:1px solid currentColor}
-.badge.warn{color:#B8761E}
-.pchip{display:inline-block;font-size:11.5px;border-radius:999px;padding:1px 8px;background:var(--bg);color:var(--ink-2)}
+.hsum{font-size:12.5px;color:var(--ink-2);margin:10px 0 4px}
+.hlist{max-height:62vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px}
+.hcard{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;padding:9px 10px 9px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.hcard.ex{opacity:.6}
+.hnum{width:26px;height:26px;border-radius:7px;background:var(--worth);color:#fff;font:600 12px/26px var(--sans);text-align:center;margin-top:1px}
+.hcard.ex .hnum{background:var(--line);color:var(--ink-3)}
+.hname{font-weight:600;line-height:1.3}
+.hstats{display:flex;flex-wrap:wrap;gap:0 10px;align-items:baseline;color:var(--ink-2);font-size:12.5px;margin-top:2px}
+.hstats b{color:var(--ink);font-size:15px}
+.hstats .star{color:#E3A72F;margin-left:-8px;font-size:12px}
+.hstats .htype{color:var(--ink-3)}
+.hstats .why{color:var(--must)}
+.hact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:7px}
+.hdot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--ink-3);flex:none}
+.hdot.clear{background:#3BA55D} .hdot.possible{background:#E3A72F} .hdot.unverified{background:var(--ink-3)} .hdot.skipped{background:var(--line)}
+.act{font-size:12px;color:var(--ink-2);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--panel);cursor:pointer;line-height:1.3}
+.act.book{background:var(--route);border-color:var(--route);color:var(--tab-ink);font-weight:600}
+.act.warn{color:#B8761E;border-color:#B8761E}
+.act.x{margin-left:auto;padding:3px 8px;color:var(--ink-3)}
+.hkey{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:11.5px;color:var(--ink-3);margin-top:8px}
+.hkey span{display:inline-flex;align-items:center;gap:5px}
+.pchip{display:inline-block;font-size:11px;border-radius:999px;padding:0 7px;background:var(--bg);color:var(--ink-2);vertical-align:1px}
 .pchip.high{color:var(--must);background:var(--deadline-bg)}
-.excl{margin-top:10px;font-size:13px}
-.excl summary{cursor:pointer;color:var(--ink-2)}
-.exrow{padding:6px 0;border-top:1px solid var(--line)}
-.exhit{margin:4px 0 0 10px;font-size:12.5px}
-.exhit a{color:var(--route)}
-.exrow button{font-size:12px;color:var(--route);background:none;border:1px solid var(--line);border-radius:999px;padding:1px 8px;margin-left:6px}
 .hotelpin{width:20px;height:20px;border-radius:5px;background:var(--worth);color:#fff;font:600 11px/20px var(--sans);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
 .nav button{border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13.5px;color:var(--ink)}
@@ -214,7 +226,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 27</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 29</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -861,14 +873,12 @@ function stayCfg(d){ let c=stayAreas[d.id]; if(c&&c.same) c=stayAreas[c.same]; r
 function stayBlock(d){
   const cfg=stayCfg(d); if(!cfg) return '';
   const st=staySettings();
-  let h='<details class="stayx" id="stayx"><summary>Where to sleep: find hotels</summary><div class="stayx-body">';
-  h+='<div class="row"><label>Area <select id="stayArea">'+cfg.areas.map((a,i)=>'<option value="'+i+'">'+esc(a.label)+'</option>').join('')+'</select></label>'
-    +'<label>Sort <select id="staySort"><option value="reviews"'+(st.sort==='reviews'?' selected':'')+'>reviews</option><option value="rating"'+(st.sort==='rating'?' selected':'')+'>rating</option></select></label>'
-    +'<label>€/room/night ≤ <input id="stayBudget" type="number" min="10" step="10" value="'+st.maxPrice+'" style="width:70px"></label>'
-    +'<label><input type="checkbox" id="stayShowEx" '+(st.showExcluded?'checked':'')+'> show excluded</label>'
-    +'<button class="btn primary" id="stayGo">Search</button><button class="btn" id="stayRefresh" title="Ignore the cached result">Refresh</button></div>';
-  h+='<div class="hint">Score ≥ '+st.minRating+', ≥ '+(cfg.minReviews||st.minReviews)+' reviews'+(cfg.minReviews?' (lowered for this town)':'')+'; all that pass are listed. Booking opens with '+esc(cfg.checkin)+' → '+esc(cfg.checkout)+', '+st.adults+' adults, '+st.rooms+' rooms, twin beds, free cancellation, price cap = budget × rooms per night.'
-    +(st.key?'':' <b>No API key yet:</b> open Settings above.')+'</div>';
+  let h='<details class="stayx" id="stayx"><summary><span>Where to sleep</span><small>'+esc(cfg.checkin.slice(5).replace('-','/'))+' → '+esc(cfg.checkout.slice(5).replace('-','/'))+' · '+st.adults+' adults · '+st.rooms+' rooms</small></summary><div class="stayx-body">';
+  h+='<div class="row"><select id="stayArea" aria-label="Area">'+cfg.areas.map((a,i)=>'<option value="'+i+'">'+esc(a.label)+'</option>').join('')+'</select>'
+    +'<select id="staySort" aria-label="Sort"><option value="reviews"'+(st.sort==='reviews'?' selected':'')+'>most reviewed</option><option value="rating"'+(st.sort==='rating'?' selected':'')+'>best rated</option></select>'
+    +'<label class="budget">≤ €<input id="stayBudget" type="number" min="10" step="10" value="'+st.maxPrice+'"><span>/room</span></label>'
+    +'<button class="btn primary" id="stayGo">Search</button><button class="btn icon" id="stayRefresh" title="Search again, ignoring the cache" aria-label="Refresh">↻</button></div>';
+  h+='<div class="row sub"><label class="chk"><input type="checkbox" id="stayShowEx" '+(st.showExcluded?'checked':'')+'> show excluded</label><span class="dim">score ≥ '+st.minRating+' · ≥ '+(cfg.minReviews||st.minReviews)+' reviews'+(cfg.minReviews?' (small town)':'')+(st.key||st.script?'':' · <b>set up in Settings</b>')+'</span></div>';
   h+='<div id="stayOut"></div></div></details>';
   return h;
 }
@@ -886,7 +896,7 @@ async function runStay(d,force){
     if(!st.pin){ out.innerHTML='<div class="hint">Enter the backend PIN in Settings.</div>'; return; }
     out.innerHTML='<div class="hint">Asking the backend (cached results come back instantly)…</div>';
     try{
-      const j=await backend({action:'search',day:d.id,areaLabel:area.label,q:area.q,lat:area.lat,lng:area.lng,r:area.r,city:cfg.city,minRating:st.minRating,terms:st.terms,refresh:force?'1':'0'},st);
+      const j=await backend({action:'search',day:d.id,areaLabel:area.label,q:area.q,lat:area.lat,lng:area.lng,r:area.r,city:cfg.city,minRating:st.minRating,minReviews:minReviews,terms:st.terms,refresh:force?'1':'0'},st);
       places=j.rows; cachedAt=j.cachedAt; hid=new Set(j.hidden||[]); webMap=true;
     }catch(e){ out.innerHTML='<div class="hint">'+esc(e.message)+'</div>'; return; }
   }else{
@@ -918,36 +928,35 @@ async function runStay(d,force){
 function render_stay(rows,excluded,cfg,area,st){
   const out=document.getElementById('stayOut');
   hotelLayer.clearLayers();
-  let h='<div class="hint">'+rows.length+' passed'+(excluded.length?', '+excluded.length+' excluded':'')+'. Booking price cap €'+(st.maxPrice*st.rooms)+'/night for '+st.rooms+' rooms.</div><div class="hlist">';
-  if(!rows.length) h+='<div class="hint">Nothing passed the filters here. Lower the review count in Settings or pick another area.</div>';
+  const stateOf=r=>(r.web&&r.web.state)||'unverified';
+  const dot=st_=>'<i class="hdot '+st_+'" title="'+({clear:'Clear: web pages found, no pest mentions',possible:'Possible: pages mention the hotel near the terms, check',unverified:'Unverified: little web coverage, check manually',skipped:'Not checked'}[st_]||'')+'"></i>';
+  let h='<div class="hsum">'+rows.length+' hotels'+(excluded.length?' · <span class="dim">'+excluded.length+' excluded</span>':'')+(st.cachedAt?' · <span class="dim">'+esc(new Date(st.cachedAt).toLocaleDateString(undefined,{day:'numeric',month:'short'}))+' '+esc(new Date(st.cachedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}))+'</span>':'')+'</div>';
+  h+='<div class="hlist">';
+  if(!rows.length) h+='<div class="hint">Nothing passed here. Try another area or lower the review floor in Settings.</div>';
   rows.forEach((r,i)=>{
-    h+='<div class="hotel"><div class="hl1"><b>'+(i+1)+'. '+esc(r.name)+'</b><span class="hmeta">'+r.rating.toFixed(1)+' ★ · '+r.count+' reviews'+(r.price?' · '+r.price:'')+(r.dist!=null?' · '+r.dist.toFixed(1)+' km':'')+'</span></div>';
-    const w=r.web||{state:'unverified',reason:'not checked'};
-    const badge=w.state==='clear'?'<span class="badge ok">clear · '+(w.baseline||0)+' pages found, no pest mentions</span>'
-      :w.state==='possible'?'<span class="badge warn">possible · '+w.items.length+' page'+(w.items.length>1?'s':'')+' mention the hotel near the terms</span>'
-      :'<span class="badge dim">unverified · '+esc(w.reason||'')+' · check manually</span>';
-    h+='<div class="hl2">'+esc(r.type)+(r.addr?' · '+esc(r.addr):'')+'</div><div class="hl2">'+badge+(r.price?' <span class="pchip'+(r.price.length>=3?' high':'')+'" title="Google price band">'+r.price+(r.price.length>=3?' · likely above budget':'')+'</span>':' <span class="dim">no price band</span>')+'</div>';
-    if(w.state==='possible') h+='<div class="exhit">'+w.items.slice(0,2).map(it=>'<a target="_blank" rel="noopener" href="'+esc(it.link)+'">'+esc(it.title)+'</a>').join(' · ')+'</div>';
-    h+='<div class="hl3"><a target="_blank" rel="noopener" href="'+r.maps+'">Maps, check reviews</a><a target="_blank" rel="noopener" href="'+bookingURL(r.name,cfg,st)+'">Booking</a><a target="_blank" rel="noopener" href="'+reportsURL(r.name,cfg.city,st)+'">Reports</a>'+(r.site?'<a target="_blank" rel="noopener" href="'+esc(r.site)+'">Website</a>':'')+'<button data-copyterms>Copy terms</button><button data-hide="'+r.id+'">Hide</button></div></div>';
+    const w=r.web||{}; const stt=stateOf(r);
+    h+='<div class="hcard"><div class="hnum">'+(i+1)+'</div><div class="hbody">'
+      +'<div class="hname">'+esc(r.name)+(r.price?' <span class="pchip'+(r.price.length>=3?' high':'')+'">'+r.price+'</span>':'')+'</div>'
+      +'<div class="hstats"><b>'+r.rating.toFixed(1)+'</b><span class="star">★</span><span>'+r.count.toLocaleString()+'</span>'+(r.dist!=null?'<span>'+r.dist.toFixed(1)+' km</span>':'')+'<span class="htype">'+esc(r.type)+'</span></div>'
+      +'<div class="hact">'+dot(stt)
+      +'<a target="_blank" rel="noopener" href="'+bookingURL(r.name,cfg,st)+'" class="act book">Book</a>'
+      +'<a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'
+      +'<a target="_blank" rel="noopener" href="'+reportsURL(r.name,cfg.city,st)+'" class="act">Web</a>'
+      +(w.items&&w.items.length&&stt==='possible'?'<a target="_blank" rel="noopener" href="'+esc(w.items[0].link)+'" class="act warn" title="'+esc(w.items[0].title)+'">mention</a>':'')
+      +'<button class="act x" data-hide="'+r.id+'" title="Hide">×</button></div>'
+      +'</div></div>';
     if(r.lat&&r.lng){
       const m=L.marker([r.lat,r.lng],{icon:L.divIcon({className:'',html:'<div class="hotelpin">'+(i+1)+'</div>',iconSize:[20,20],iconAnchor:[10,10]}),zIndexOffset:700}).addTo(hotelLayer);
       m.bindPopup('<div class="pp-name">'+esc(r.name)+'</div><div class="pp-d">'+r.rating.toFixed(1)+' ★ · '+r.count+' reviews</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+r.maps+'">Maps</a><a target="_blank" rel="noopener" href="'+bookingURL(r.name,cfg,st)+'">Booking</a></div>');
     }
   });
-  if(st.showExcluded) excluded.forEach(e=>{ const r=e.r; h+='<div class="hotel ex"><div class="hl1"><b>'+esc(r.name)+'</b><span class="hmeta">'+r.rating.toFixed(1)+' ★ · '+r.count+' reviews</span></div><div class="hl2">excluded: '+esc(e.why)+(e.items?' · <a target="_blank" rel="noopener" href="'+esc(e.items[0].link)+'">'+esc(e.items[0].title)+'</a>':'')+'</div><div class="hl3"><a target="_blank" rel="noopener" href="'+r.maps+'">Maps</a>'+(e.why==='hidden by you'?'<button data-unhide="'+r.id+'">Unhide</button>':'')+'</div></div>'; });
+  if(st.showExcluded) excluded.forEach(e=>{ const r=e.r; h+='<div class="hcard ex"><div class="hnum">–</div><div class="hbody"><div class="hname">'+esc(r.name)+'</div><div class="hstats"><b>'+r.rating.toFixed(1)+'</b><span class="star">★</span><span>'+r.count+'</span><span class="why">'+esc(e.why)+'</span></div><div class="hact">'+(e.items?'<a target="_blank" rel="noopener" href="'+esc(e.items[0].link)+'" class="act warn">'+esc(e.items[0].title.slice(0,40))+'…</a>':'')+'<a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'+(e.why==='hidden by you'?'<button class="act" data-unhide="'+r.id+'">unhide</button>':'')+'</div></div></div>'; });
   h+='</div>';
-  if(excluded.length&&!st.showExcluded){
-    h+='<details class="excl"><summary>'+excluded.length+' excluded</summary>';
-    excluded.forEach(e=>{ h+='<div class="exrow"><b>'+esc(e.r.name)+'</b> <span class="dim">'+esc(e.why)+'</span>'+(e.items?e.items.slice(0,2).map(it=>'<div class="exhit"><a target="_blank" rel="noopener" href="'+esc(it.link)+'">'+esc(it.title)+'</a><div class="dim">'+esc(it.snippet||'')+'</div></div>').join(''):'')+(e.why==='hidden by you'?' <button data-unhide="'+e.r.id+'">Unhide</button>':'')+'</div>'; });
-    h+='</details>';
-  }
-  h+='<div class="hint">Powered by Google · '+(st.cachedAt?'results from '+esc(new Date(st.cachedAt).toLocaleString())+' (backend cache, 24 h)':'results cached in this browser 24 h')+' · web check: clear / possible / unverified / flagged (excluded) · terms: '+esc(termList(st).join(', '))+'</div>';
+  h+='<div class="hkey"><span>'+dot('clear')+'clear</span><span>'+dot('possible')+'possible</span><span>'+dot('unverified')+'unverified</span><span class="dim">· flagged ones are excluded · Google Places + web check</span></div>';
   out.innerHTML=h;
   if(rows.some(r=>r.lat)){ map.fitBounds(L.latLngBounds(rows.filter(r=>r.lat).map(r=>[r.lat,r.lng])).pad(0.3),{maxZoom:15}); }
-  const nameOf=id=>(rows.concat(excluded.map(e=>e.r)).find(r=>r.id===id)||{}).name||'';
-  out.querySelectorAll('[data-hide]').forEach(b=>b.addEventListener('click',async()=>{ if(st.script){ try{ await backend({action:'hide',id:b.dataset.hide,name:nameOf(b.dataset.hide)},st);}catch(e){} } else { const h=hidden();h.add(b.dataset.hide);setHidden(h); } runStay(current_day(),false); }));
+  out.querySelectorAll('[data-hide]').forEach(b=>b.addEventListener('click',async()=>{ if(st.script){ try{ await backend({action:'hide',id:b.dataset.hide,name:(rows.find(r=>r.id===b.dataset.hide)||{}).name||''},st);}catch(e){} } else { const h=hidden();h.add(b.dataset.hide);setHidden(h); } runStay(current_day(),false); }));
   out.querySelectorAll('[data-unhide]').forEach(b=>b.addEventListener('click',async()=>{ if(st.script){ try{ await backend({action:'unhide',id:b.dataset.unhide},st);}catch(e){} } else { const h=hidden();h.delete(b.dataset.unhide);setHidden(h); } runStay(current_day(),false); }));
-  out.querySelectorAll('[data-copyterms]').forEach(b=>b.addEventListener('click',()=>copyText(termList(st).slice(0,6).join(' '),b)));
 }
 const current_day=()=>days.find(x=>x.id===current);
 
