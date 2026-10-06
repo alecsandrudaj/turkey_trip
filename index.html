@@ -232,7 +232,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 32</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 33</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -870,8 +870,18 @@ const bookingParams=(cfg,st)=>'&checkin='+cfg.checkin+'&checkout='+cfg.checkout+
 const bookingURL=(name,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(name)+'&dest_type=hotel'+bookingParams(cfg,st);
 // the whole area: Booking's own search with filters applied
 const bookingAreaURL=(area,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(area.label.split(',')[0]+', '+cfg.city)+'&latitude='+area.lat+'&longitude='+area.lng+'&radius='+Math.round(area.r/1000)+'&order=review_score_and_price'+bookingParams(cfg,st);
-// iOS/Android hand booking.com links to the app, which drops the filters; opening from script keeps it in the browser
-function openWeb(url,ev){ ev.preventDefault(); window.open(url,'_blank','noopener'); }
+// Phones hand booking.com links to the Booking app, which drops the filters.
+// Android: an intent that targets Chrome itself opens the URL as a plain page. iOS: opening from script keeps it in Safari.
+function openWeb(url,ev){
+  ev.preventDefault();
+  const ua=navigator.userAgent||'';
+  if(/Android/i.test(ua)){
+    const bare=url.replace(/^https?:\/\//,'');
+    location.href='intent://'+bare+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+    return;
+  }
+  window.open(url,'_blank','noopener');
+}
 document.addEventListener('click',e=>{const a=e.target.closest('a[data-web]'); if(a) openWeb(a.href,e);});
 const reportsURL=(name,city,st)=>'https://www.google.com/search?q='+encodeURIComponent('"'+name+'" '+city+' ('+termList(st).slice(0,8).map(t=>t.includes(' ')?'"'+t+'"':t).join(' OR ')+')');
 
