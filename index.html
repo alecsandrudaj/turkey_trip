@@ -178,7 +178,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 15</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 16</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -505,7 +505,24 @@ const socialName={
   'Antalya Archaeology Museum':'Antalya Müzesi','Lunch near Korkuteli':'Korkuteli gözleme','Lunch in Adıyaman':'Adıyaman','Lunch in Halfeti':'Halfeti','Gaziantep bypass':'Gaziantep','Xanthos and Letoon':'Xanthos','Göbekli Tepe':'Göbekli Tepe','Patara':'Patara plajı','Kaş':'Kaş Antalya','Side':'Side Antalya','Aspendos':'Aspendos','Perge':'Perge Antalya'
 };
 const socialQ=it=>socialName[it.name]||it.name.replace(/,.*$|\(.*$| instead.*$| here.*$/,'').trim();
-const tiktokURL=q=>'https://www.tiktok.com/search?q='+encodeURIComponent(q);
+const tiktokURL=q=>'https://www.tiktok.com/tag/'+igTag(q); // hashtag page: registered app link, opens the app on phones
+const tiktokWeb=q=>'https://www.tiktok.com/search?q='+encodeURIComponent(q);
+// try the app with a real search first; fall back to the web page
+function openTikTok(q,ev){
+  const ua=navigator.userAgent||'';
+  const isAndroid=/Android/i.test(ua), isIOS=/iPhone|iPad|iPod/i.test(ua);
+  if(!isAndroid&&!isIOS) return; // desktop: let the normal link open
+  ev.preventDefault();
+  const fallback=tiktokURL(q);
+  if(isAndroid){
+    location.href='intent://search?keyword='+encodeURIComponent(q)+'#Intent;scheme=snssdk1233;package=com.zhiliaoapp.musically;S.browser_fallback_url='+encodeURIComponent(fallback)+';end';
+    return;
+  }
+  const t=Date.now();
+  location.href='snssdk1233://search?keyword='+encodeURIComponent(q);
+  setTimeout(()=>{ if(Date.now()-t<1600&&!document.hidden) location.href=fallback; },1200);
+}
+document.addEventListener('click',e=>{const a=e.target.closest('a[data-tt]'); if(a) openTikTok(a.dataset.tt,e);});
 const igTag=q=>q.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ş/g,'s').replace(/ç/g,'c').replace(/ö/g,'o').replace(/ü/g,'u').replace(/İ/g,'i').replace(/[^A-Za-z0-9]/g,'').toLowerCase();
 const instaURL=q=>'https://www.instagram.com/explore/tags/'+igTag(q)+'/';
 const ICON={
@@ -516,7 +533,7 @@ const ICON={
 const socialHTML=(it,at)=>{
   const q=socialQ(it); let h='<span class="soc">';
   if(at&&C[at]) h+='<a target="_blank" rel="noopener" href="'+gmSearch(at)+'" title="Open in Google Maps" aria-label="Open in Google Maps">'+ICON.maps+'</a>';
-  h+='<a target="_blank" rel="noopener" href="'+tiktokURL(q)+'" title="TikTok: '+esc(q)+'" aria-label="TikTok">'+ICON.tiktok+'</a>';
+  h+='<a target="_blank" rel="noopener" href="'+tiktokWeb(q)+'" data-tt="'+esc(q)+'" title="TikTok: '+esc(q)+'" aria-label="TikTok">'+ICON.tiktok+'</a>';
   h+='<a target="_blank" rel="noopener" href="'+instaURL(q)+'" title="Instagram #'+igTag(q)+'" aria-label="Instagram">'+ICON.insta+'</a>';
   return h+'</span>';
 };
