@@ -154,8 +154,9 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .ovday .l3 span{display:inline-flex;align-items:center;gap:5px}
 .ov .keys{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:grid;gap:6px}
 .ov .keys span{display:inline-flex;align-items:center;gap:8px}
-.soc{display:inline-flex;gap:6px;margin-left:8px;vertical-align:1px}
-.soc a{font-size:11px;color:var(--ink-3);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:1px 7px;white-space:nowrap}
+.soc{display:inline-flex;gap:4px;margin-left:8px;vertical-align:-3px}
+.soc a{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;color:var(--ink-3);border:1px solid var(--line);background:var(--panel)}
+.soc a svg{width:14px;height:14px;fill:currentColor}
 .soc a:hover{color:var(--route);border-color:var(--route)}
 .pp-links .soc{margin-left:0}
 .inc{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:11.5px;color:var(--ink-3);vertical-align:1px;cursor:pointer;white-space:nowrap}
@@ -177,7 +178,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 14</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 15</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -507,7 +508,18 @@ const socialQ=it=>socialName[it.name]||it.name.replace(/,.*$|\(.*$| instead.*$| 
 const tiktokURL=q=>'https://www.tiktok.com/search?q='+encodeURIComponent(q);
 const igTag=q=>q.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ş/g,'s').replace(/ç/g,'c').replace(/ö/g,'o').replace(/ü/g,'u').replace(/İ/g,'i').replace(/[^A-Za-z0-9]/g,'').toLowerCase();
 const instaURL=q=>'https://www.instagram.com/explore/tags/'+igTag(q)+'/';
-const socialHTML=it=>{const q=socialQ(it);return '<span class="soc"><a target="_blank" rel="noopener" href="'+tiktokURL(q)+'" title="TikTok: '+esc(q)+'">TikTok</a><a target="_blank" rel="noopener" href="'+instaURL(q)+'" title="Instagram #'+igTag(q)+'">Instagram</a></span>';};
+const ICON={
+  tiktok:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v10.2a3.3 3.3 0 1 1-2.6-3.2V7.4a5.9 5.9 0 1 0 5.2 5.8V9.4c1 .7 2.2 1.1 3.4 1.1V7.9A4.4 4.4 0 0 1 16.6 3H14z"/></svg>',
+  insta:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="7" r="1.2"/></svg>',
+  maps:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a7 7 0 0 0-7 7c0 5.2 7 12 7 12s7-6.8 7-12a7 7 0 0 0-7-7z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9.5" r="2.5"/></svg>'
+};
+const socialHTML=(it,at)=>{
+  const q=socialQ(it); let h='<span class="soc">';
+  if(at&&C[at]) h+='<a target="_blank" rel="noopener" href="'+gmSearch(at)+'" title="Open in Google Maps" aria-label="Open in Google Maps">'+ICON.maps+'</a>';
+  h+='<a target="_blank" rel="noopener" href="'+tiktokURL(q)+'" title="TikTok: '+esc(q)+'" aria-label="TikTok">'+ICON.tiktok+'</a>';
+  h+='<a target="_blank" rel="noopener" href="'+instaURL(q)+'" title="Instagram #'+igTag(q)+'" aria-label="Instagram">'+ICON.insta+'</a>';
+  return h+'</span>';
+};
 function copyText(t,btn){ try{ navigator.clipboard.writeText(t).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1200);} }); }catch(e){ prompt('Coordinates',t); } }
 // which items are included in a day's exported route: ids like 'fri9-2-p' (slot 2 primary) or 'fri9-2-a1' (slot 2, alternative 1)
 const chosen={};
@@ -668,7 +680,7 @@ function itemHTML(it,alt,incId,checked){
   let h='<div class="item '+tier+'">';
   if(tier!=='n') h+='<i class="ind '+tier+(alt?' alt':'')+'"></i>';
   h+='<span class="name">'+esc(it.name)+'</span>';
-  if(tier!=='n'||it.at) h+=socialHTML(it);
+  if(tier!=='n'||it.at) h+=socialHTML(it,it.at);
   if(incId&&it.at) h+='<label class="inc" title="Include in the exported Google Maps route"><input type="checkbox" data-inc="'+incId+'" '+(checked?'checked':'')+'> route</label>';
   if(it.dur) h+='<span class="dur">'+esc(it.dur)+'</span>';
   if(it.d) h+='<div class="d">'+esc(it.d)+'</div>';
