@@ -195,7 +195,11 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .hsum{font-size:12.5px;color:var(--ink-2);margin:10px 0 4px}
 .hlist{max-height:62vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px}
 .hcard{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;padding:9px 10px 9px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
-.hcard.ex{opacity:.6}
+.hcard.ex{opacity:.75;border-color:var(--must)}
+.hcard.ex.collapsed{padding-top:6px;padding-bottom:6px;opacity:.55}
+.hcard.ex.collapsed .hnum{background:var(--line);color:var(--ink-3)}
+.exlbl{font-size:11px;color:var(--must);font-weight:400;margin-left:6px}
+.hotelpin.off{background:var(--line);color:var(--ink-3)}
 .hnum{width:26px;height:26px;border-radius:7px;background:var(--worth);color:#fff;font:600 12px/26px var(--sans);text-align:center;margin-top:1px}
 .hcard.ex .hnum{background:var(--line);color:var(--ink-3)}
 .hname{font-weight:600;line-height:1.3}
@@ -206,6 +210,10 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .hstats .why,.hchk .why{color:var(--must)}
 .hact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:7px}
 .hdot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--ink-3);flex:none}
+.hdot.pending{background:var(--line);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.4}}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--line);border-top-color:var(--route);border-radius:50%;animation:rot .8s linear infinite;vertical-align:-1px;margin-right:4px}
+@keyframes rot{to{transform:rotate(360deg)}}
 .hdot.clear{background:#3BA55D} .hdot.possible{background:#E3A72F} .hdot.unverified{background:var(--ink-3)} .hdot.skipped{background:var(--line)}
 .act{font-size:12px;color:var(--ink-2);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--panel);cursor:pointer;line-height:1.3}
 .act.book{background:#0071C2;border-color:#0071C2;color:#fff;font-weight:600}
@@ -232,7 +240,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 39</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 41</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -924,7 +932,7 @@ async function runStay(d,force){
     if(!st.pin){ out.innerHTML='<div class="hint">Enter the backend PIN in Settings.</div>'; return; }
     out.innerHTML='<div class="hint">Asking the backend (cached results come back instantly)…</div>';
     try{
-      const j=await backend({action:'search',day:d.id,areaLabel:area.label,q:area.q,lat:area.lat,lng:area.lng,r:area.r,city:cfg.city,minRating:st.minRating,minReviews:minReviews,maxDist:st.maxDist,terms:st.terms,refresh:force?'1':'0'},st);
+      const j=await backend({action:'search',day:d.id,areaLabel:area.label,q:area.q,lat:area.lat,lng:area.lng,r:area.r,city:cfg.city,minRating:st.minRating,terms:st.terms,refresh:force?'1':'0'},st);
       places=j.rows; cachedAt=j.cachedAt; hid=new Set(j.hidden||[]); webMap=true;
     }catch(e){ out.innerHTML='<div class="hint">'+esc(e.message)+'</div>'; return; }
   }else{
@@ -939,40 +947,67 @@ async function runStay(d,force){
   let rows=places.map(r=>Object.assign({},r,{price:priceBand[r.price]||r.price||''}));
   rows.forEach(r=>{ r.dist=(r.lat&&r.lng)?distKm(area.lat,area.lng,r.lat,r.lng):null; });
   const excluded=[];
+  hiddenNow.clear(); hid.forEach(x=>hiddenNow.add(x));
   rows=rows.filter(r=>{ if(hid.has(r.id)){excluded.push({r,why:'hidden by you'});return false;} if(r.count<minReviews){excluded.push({r,why:r.count+' reviews, below '+minReviews});return false;} if(r.rating<st.minRating){excluded.push({r,why:'score '+r.rating});return false;} if(r.dist!=null&&r.dist>st.maxDist){excluded.push({r,why:r.dist.toFixed(1)+' km from the area'});return false;} return true; });
   rows.sort((a,b)=>st.sort==='rating'?(b.rating-a.rating||b.count-a.count):(b.count-a.count));
   if(st.results>0) rows=rows.slice(0,st.results+6);
-  if(!webMap){
-    out.innerHTML='<div class="hint">Checking the web for pest reports…</div>';
-    const checks=await Promise.all(rows.map(r=>webCheck(r.name,cfg.city,st).catch(()=>null)));
-    rows.forEach((r,i)=>r.web=checks[i]);
-  }
-  const passed=[];
-  rows.forEach(r=>{ const w=r.web||{state:'unverified',reason:'not checked'}; const g=r.greviews||{scanned:0,hits:[]};
-    if(g.hits&&g.hits.length){ excluded.push({r,why:'Google review ('+g.hits[0].rating+'★, '+esc(g.hits[0].when)+'): “'+g.hits[0].quote+'”',gquote:true}); }
-    else if(w.state==='flagged'){ excluded.push({r,why:'pest terms in '+w.items.length+' web result'+(w.items.length>1?'s':''),items:w.items}); }
-    else passed.push(r); });
   st.cachedAt=cachedAt;
-  render_stay(st.results>0?passed.slice(0,st.results):passed,excluded,cfg,area,st);
+  // show the list now; web verdicts fill in as batches return
+  const toCheck=rows.filter(r=>!(r.web&&r.web.state));
+  rows.forEach(r=>{ if(!(r.web&&r.web.state)) r.web={state:'pending'}; });
+  const token=++stayRun; const draw=()=>{ if(token===stayRun) render_stay(rows,excluded,cfg,area,st,toCheck.filter(r=>r.web.state==='pending').length); };
+  draw();
+  if(st.script){
+    for(let i=0;i<toCheck.length;i+=5){
+      if(token!==stayRun) return; // a newer search replaced this one
+      const batch=toCheck.slice(i,i+5);
+      try{
+        const j=await backend({action:'check',names:JSON.stringify(batch.map(r=>r.name)),city:cfg.city,terms:st.terms},st);
+        batch.forEach(r=>{ r.web=(j.results&&j.results[r.name])||{state:'unverified',reason:'no verdict returned'}; });
+      }catch(e){ batch.forEach(r=>{ r.web={state:'unverified',reason:'check failed: '+e.message}; }); }
+      draw();
+    }
+  }else{
+    for(const r of toCheck){ if(token!==stayRun) return; r.web=await webCheck(r.name,cfg.city,st).catch(()=>({state:'unverified',reason:'check failed'})); draw(); }
+  }
 }
+let stayRun=0;
 
-function render_stay(rows,excluded,cfg,area,st){
-  const out=document.getElementById('stayOut');
+function render_stay(rowsIn,excludedIn,cfg,area,st,pending){
+  const out=document.getElementById('stayOut'); if(!out) return;
   hotelLayer.clearLayers();
+  // positions and numbers are fixed from the first draw; late exclusions stay in place, marked red, then collapse
+  const excluded=excludedIn.slice();
+  const flagOf=r=>{ const w=r.web||{state:'pending'}; const g=r.greviews||{scanned:0,hits:[]};
+    if(g.hits&&g.hits.length) return {why:'Google review ('+g.hits[0].rating+'★, '+esc(g.hits[0].when)+'): “'+g.hits[0].quote+'”',gquote:true};
+    if(w.state==='flagged') return {why:'pest terms in '+w.items.length+' web result'+(w.items.length>1?'s':''),items:w.items};
+    if(hiddenNow.has(r.id)) return {why:'hidden by you',hidden:true};
+    return null; };
   const stateOf=r=>(r.web&&r.web.state)||'unverified';
-  const dot=st_=>'<i class="hdot '+st_+'" title="'+({clear:'Clear: web pages found, no pest mentions',possible:'Possible: pages mention the hotel near the terms, check',unverified:'Unverified: little web coverage, check manually',skipped:'Not checked'}[st_]||'')+'"></i>';
-  const cnt={clear:0,possible:0,unverified:0}; rows.forEach(r=>{const k=stateOf(r); if(cnt[k]!=null) cnt[k]++;});
-  const flagged=excluded.filter(e=>e.items||e.gquote).length;
-  let h='<div class="hsum">'+rows.length+' hotels'+(excluded.length?' · <span class="dim">'+excluded.length+' excluded'+(flagged?' ('+flagged+' for pest mentions)':'')+'</span>':'')+(st.cachedAt?' · <span class="dim">'+esc(new Date(st.cachedAt).toLocaleDateString(undefined,{day:'numeric',month:'short'}))+' '+esc(new Date(st.cachedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}))+'</span>':'')+'</div>';
-  h+='<div class="hexpl">Each hotel was checked two ways: a web search (Booking, TripAdvisor, blogs) for the pest terms, and the Google reviews the API returns (up to 5). Web check: <b>'+cnt.clear+'</b> clear, <b>'+cnt.possible+'</b> possible, <b>'+cnt.unverified+'</b> unverified.</div>';
+  const dot=st_=>'<i class="hdot '+st_+'" title="'+({clear:'Clear: web pages found, no pest mentions',possible:'Possible: pages mention the hotel near the terms, check',unverified:'Unverified: the check could not run, check manually',pending:'Checking…',flagged:'Flagged',skipped:'Not checked'}[st_]||'')+'"></i>';
+  const live=rowsIn.filter(r=>!flagOf(r));
+  const cnt={clear:0,possible:0,unverified:0,pending:0}; live.forEach(r=>{const k=stateOf(r); if(cnt[k]!=null) cnt[k]++;});
+  const flaggedN=rowsIn.length-live.length;
+  let h='<div class="hsum">'+live.length+' hotels'+(excluded.length+flaggedN?' · <span class="dim">'+(excluded.length+flaggedN)+' excluded'+(flaggedN?' ('+flaggedN+' in the list below)':'')+'</span>':'')+(st.cachedAt?' · <span class="dim">'+esc(new Date(st.cachedAt).toLocaleDateString(undefined,{day:'numeric',month:'short'}))+' '+esc(new Date(st.cachedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}))+'</span>':'')+'</div>';
+  h+='<div class="hexpl">'+(pending?'<span class="spin"></span> Checking the web for pest reports, '+pending+' to go… ':'')+'Web check: <b>'+cnt.clear+'</b> clear, <b>'+cnt.possible+'</b> possible, <b>'+cnt.unverified+'</b> unverified. Google reviews (up to 5 each) are scanned too.</div>';
   h+='<div class="hlist">';
-  if(!rows.length) h+='<div class="hint">Nothing passed here. Try another area or lower the review floor in Settings.</div>';
-  rows.forEach((r,i)=>{
-    const w=r.web||{}; const stt=stateOf(r);
+  if(!rowsIn.length) h+='<div class="hint">Nothing passed here. Try another area or lower the review floor in Settings.</div>';
+  rowsIn.forEach((r,i)=>{
+    const w=r.web||{}; const stt=stateOf(r); const fl=flagOf(r);
+    if(fl){
+      // excluded after the list was drawn: keep the slot, collapse once checks are done
+      const open=!!r._open;
+      h+='<div class="hcard ex'+(pending||open?'':' collapsed')+'" data-row="'+i+'"><div class="hnum">'+(i+1)+'</div><div class="hbody">'
+        +'<div class="hname">'+esc(r.name)+' <span class="exlbl">excluded</span>'+(pending||open?'':' <button class="act" data-open="'+i+'">show</button>')+'</div>'
+        +(pending||open?'<div class="hchk"><span class="why">Excluded: '+esc(fl.why)+'</span></div><div class="hact">'+(fl.items?'<a target="_blank" rel="noopener" href="'+esc(fl.items[0].link)+'" class="act warn">'+esc(fl.items[0].title.slice(0,40))+'…</a>':'')+(fl.gquote?'<span class="act warn">Google review</span>':'')+'<a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'+(fl.hidden?'<button class="act" data-unhide="'+r.id+'">unhide</button>':'')+'</div>':'')
+        +'</div></div>';
+      if(r.lat&&r.lng){ L.marker([r.lat,r.lng],{icon:L.divIcon({className:'',html:'<div class="hotelpin off">'+(i+1)+'</div>',iconSize:[20,20],iconAnchor:[10,10]}),zIndexOffset:600}).addTo(hotelLayer).bindPopup('<div class="pp-name">'+esc(r.name)+'</div><div class="pp-alt">excluded: '+esc(fl.why)+'</div>'); }
+      return;
+    }
     h+='<div class="hcard"><div class="hnum">'+(i+1)+'</div><div class="hbody">'
       +'<div class="hname">'+esc(r.name)+(r.price?' <span class="pchip'+(r.price.length>=3?' high':'')+'">'+r.price+'</span>':'')+'</div>'
       +'<div class="hstats"><b>'+r.rating.toFixed(1)+'</b><span class="star">★</span><span>'+r.count.toLocaleString()+'</span>'+(r.dist!=null?'<span>'+r.dist.toFixed(1)+' km</span>':'')+'<span class="htype">'+esc(r.type)+'</span></div>'
-      +'<div class="hchk">'+dot(stt)+'<span>'+({clear:'Web: '+(w.baseline||0)+' pages mention this hotel, none with the terms',possible:'Web: '+(w.items?w.items.length:0)+' page'+(w.items&&w.items.length>1?'s':'')+' mention it near the terms, look before booking',unverified:'Web: '+(w.reason==='no web coverage of this hotel'?'almost nothing written about it online':'check failed ('+esc(w.reason||'')+')')+', check Maps reviews yourself',skipped:'Web: not checked'}[stt]||'')+'</span>'
+      +'<div class="hchk">'+dot(stt)+'<span>'+({clear:'Web: '+(w.baseline||0)+' pages mention this hotel, none with the terms',possible:'Web: '+(w.items?w.items.length:0)+' page'+(w.items&&w.items.length>1?'s':'')+' mention it near the terms, look before booking',unverified:'Web: check failed ('+esc(w.reason||'')+'), check Maps reviews yourself',pending:'Web: checking…',skipped:'Web: not checked'}[stt]||'')+'</span>'
       +(r.greviews?'<span class="gs">Google: '+r.greviews.scanned+' review'+(r.greviews.scanned===1?'':'s')+' scanned, clean</span>':'')+'</div>'
       +'<div class="hact">'
       +'<a href="'+bookingURL(r.name,cfg,st)+'" class="act book" title="Tap: Booking app with dates and party. Long-press → open in incognito tab: browser with twin beds, 8+ and the price cap applied">Booking</a>'
@@ -986,14 +1021,20 @@ function render_stay(rows,excluded,cfg,area,st){
       m.bindPopup('<div class="pp-name">'+esc(r.name)+'</div><div class="pp-d">'+r.rating.toFixed(1)+' ★ · '+r.count+' reviews</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+r.maps+'">Maps</a><a target="_blank" rel="noopener" href="'+bookingURL(r.name,cfg,st)+'">Booking</a></div>');
     }
   });
-  if(st.showExcluded) excluded.forEach(e=>{ const r=e.r; h+='<div class="hcard ex"><div class="hnum">–</div><div class="hbody"><div class="hname">'+esc(r.name)+'</div><div class="hstats"><b>'+r.rating.toFixed(1)+'</b><span class="star">★</span><span>'+r.count+'</span></div><div class="hchk"><span class="why">Excluded: '+esc(e.why)+'</span></div><div class="hact">'+(e.items?'<a target="_blank" rel="noopener" href="'+esc(e.items[0].link)+'" class="act warn">'+esc(e.items[0].title.slice(0,40))+'…</a>':'')+(e.gquote?'<span class="act warn">Google review</span>':'')+'<a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'+(e.why==='hidden by you'?'<button class="act" data-unhide="'+r.id+'">unhide</button>':'')+'</div></div></div>'; });
+  if(st.showExcluded) excluded.forEach(e=>{ const r=e.r; h+='<div class="hcard ex"><div class="hnum">–</div><div class="hbody"><div class="hname">'+esc(r.name)+'</div><div class="hstats"><b>'+r.rating.toFixed(1)+'</b><span class="star">★</span><span>'+r.count+'</span></div><div class="hchk"><span class="why">Excluded: '+esc(e.why)+'</span></div><div class="hact"><a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'+(e.why==='hidden by you'?'<button class="act" data-unhide="'+r.id+'">unhide</button>':'')+'</div></div></div>'; });
   h+='</div>';
   h+='<div class="hkey"><span>'+dot('clear')+'clear</span><span>'+dot('possible')+'possible</span><span>'+dot('unverified')+'unverified</span><span class="dim">· flagged ones are excluded · long-press Booking → incognito tab for the filtered browser view</span></div>';
+  const scrollTop=out.querySelector('.hlist')?.scrollTop||0;
   out.innerHTML=h;
-  if(rows.some(r=>r.lat)){ map.fitBounds(L.latLngBounds(rows.filter(r=>r.lat).map(r=>[r.lat,r.lng])).pad(0.3),{maxZoom:15}); }
-  out.querySelectorAll('[data-hide]').forEach(b=>b.addEventListener('click',async()=>{ if(st.script){ try{ await backend({action:'hide',id:b.dataset.hide,name:(rows.find(r=>r.id===b.dataset.hide)||{}).name||''},st);}catch(e){} } else { const h=hidden();h.add(b.dataset.hide);setHidden(h); } runStay(current_day(),false); }));
-  out.querySelectorAll('[data-unhide]').forEach(b=>b.addEventListener('click',async()=>{ if(st.script){ try{ await backend({action:'unhide',id:b.dataset.unhide},st);}catch(e){} } else { const h=hidden();h.delete(b.dataset.unhide);setHidden(h); } runStay(current_day(),false); }));
+  const hl=out.querySelector('.hlist'); if(hl) hl.scrollTop=scrollTop;
+  if(!pending&&live.some(r=>r.lat)){ map.fitBounds(L.latLngBounds(live.filter(r=>r.lat).map(r=>[r.lat,r.lng])).pad(0.3),{maxZoom:15}); }
+  out.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{ rowsIn[+b.dataset.open]._open=true; render_stay(rowsIn,excludedIn,cfg,area,st,pending); }));
+  // hide / unhide act in place: no re-search, no renumbering
+  out.querySelectorAll('[data-hide]').forEach(b=>b.addEventListener('click',async()=>{ hiddenNow.add(b.dataset.hide); render_stay(rowsIn,excludedIn,cfg,area,st,pending); if(st.script){ try{ await backend({action:'hide',id:b.dataset.hide,name:(rowsIn.find(r=>r.id===b.dataset.hide)||{}).name||''},st);}catch(e){} } else { const hh=hidden();hh.add(b.dataset.hide);setHidden(hh); } }));
+  out.querySelectorAll('[data-unhide]').forEach(b=>b.addEventListener('click',async()=>{ hiddenNow.delete(b.dataset.unhide); render_stay(rowsIn,excludedIn,cfg,area,st,pending); if(st.script){ try{ await backend({action:'unhide',id:b.dataset.unhide},st);}catch(e){} } else { const hh=hidden();hh.delete(b.dataset.unhide);setHidden(hh); } }));
 }
+const hiddenNow=new Set();
+
 const current_day=()=>days.find(x=>x.id===current);
 
 /* ---------- settings panel ---------- */
