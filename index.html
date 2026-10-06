@@ -232,7 +232,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 37</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 39</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -257,7 +257,7 @@ const GOOGLE_API_KEY='PASTE_GOOGLE_API_KEY';
 const CSE_ID='b029a9e28305a4069';
 const BACKEND_URL='https://script.google.com/macros/s/AKfycbyi3zyPovWJ0Y29CDxum5BWvkjvgllf2AxuaOnHrpQbdHz9JfytrRSDIDqXz4lB-QQ6Ng/exec';
 const BACKEND_PIN='';   // leave empty here if you prefer to type it once per device
-const STAY_DEFAULTS={minRating:4.0,minReviews:200,adults:4,rooms:2,maxPrice:150,results:0,sort:'reviews',showExcluded:false,
+const STAY_DEFAULTS={minRating:4.0,minReviews:200,adults:4,rooms:2,maxPrice:150,maxDist:3,results:0,sort:'reviews',showExcluded:false,
   terms:'bed bugs, bedbugs, tahtakurusu, tahta kurusu, kene, tick bites, böcek, beetles, insects, insect, bugs, haşere, hamam böceği, cockroach, roach, pire, fleas, mites, akar, bites'};
 
 /* ---------- itinerary ---------- */
@@ -872,7 +872,8 @@ const bookingAppURL=(ss,cfg,st)=>'booking://searchresults?ss='+encodeURIComponen
 // one hotel: Booking resolves an exact property name as the destination and lists it first
 const bookingURL=(name,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(name)+'&dest_type=hotel'+bookingParams(cfg,st);
 // the whole area: Booking's own search with filters applied
-const bookingAreaURL=(area,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(area.label.split(',')[0]+', '+cfg.city)+'&latitude='+area.lat+'&longitude='+area.lng+'&radius='+Math.round(area.r/1000)+'&order=popularity'+bookingParams(cfg,st);
+// Booking's "distance from centre" filter takes metres inside nflt; it uses the same ≤ km value as the page
+const bookingAreaURL=(area,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(area.label.split(',')[0]+', '+cfg.city)+'&latitude='+area.lat+'&longitude='+area.lng+'&radius='+Math.round(area.r/1000)+'&order=popularity'+bookingParams(cfg,st)+encodeURIComponent(';distance='+Math.round((st.maxDist||3)*1000));
 // Phones hand booking.com links to the Booking app, which drops the filters.
 // Android: an intent that targets Chrome itself opens the URL as a plain page. iOS: opening from script keeps it in Safari.
 function openWeb(url,ev){
@@ -902,8 +903,9 @@ function stayBlock(d){
   h+='<div class="row"><select id="stayArea" aria-label="Area">'+cfg.areas.map((a,i)=>'<option value="'+i+'">'+esc(a.label)+'</option>').join('')+'</select>'
     +'<select id="staySort" aria-label="Sort"><option value="reviews"'+(st.sort==='reviews'?' selected':'')+'>most reviewed</option><option value="rating"'+(st.sort==='rating'?' selected':'')+'>best rated</option></select>'
     +'<label class="budget">≤ €<input id="stayBudget" type="number" min="10" step="10" value="'+st.maxPrice+'"><span>/room</span></label>'
+    +'<label class="budget">≤ <input id="stayDist" type="number" min="0.5" step="0.5" value="'+(st.maxDist||3)+'"><span>km</span></label>'
     +'<button class="btn primary" id="stayGo">Search</button><button class="btn icon" id="stayRefresh" title="Search again, ignoring the cache" aria-label="Refresh">↻</button></div>';
-  h+='<div class="row sub"><span><a id="bkAreaApp" class="act book" href="#">Area in Booking app</a> <a id="bkAreaWeb" data-web class="act bookweb" href="#">in browser, filtered</a> <a id="bkAreaX" class="act bookweb" href="#" title="Experimental: tries to pass the filters to the app through its own link scheme">app, filtered (test)</a></span><label class="chk"><input type="checkbox" id="stayShowEx" '+(st.showExcluded?'checked':'')+'> show excluded</label><span class="dim">score ≥ '+st.minRating+' · ≥ '+(cfg.minReviews||st.minReviews)+' reviews'+(cfg.minReviews?' (small town)':'')+(st.key||st.script?'':' · <b>set up in Settings</b>')+'</span></div>';
+  h+='<div class="row sub"><span><a id="bkAreaApp" class="act book" href="#" title="Tap: Booking app. Long-press → incognito tab: browser with all filters">Whole area in Booking</a></span><label class="chk"><input type="checkbox" id="stayShowEx" '+(st.showExcluded?'checked':'')+'> show excluded</label><span class="dim">score ≥ '+st.minRating+' · ≥ '+(cfg.minReviews||st.minReviews)+' reviews'+(cfg.minReviews?' (small town)':'')+(st.key||st.script?'':' · <b>set up in Settings</b>')+'</span></div>';
   h+='<div id="stayOut"></div></div></details>';
   return h;
 }
@@ -915,13 +917,14 @@ async function runStay(d,force){
   st.sort=document.getElementById('staySort')?.value||st.sort;
   st.maxPrice=+document.getElementById('stayBudget')?.value||st.maxPrice;
   st.showExcluded=!!document.getElementById('stayShowEx')?.checked;
-  { let o={}; try{o=JSON.parse(localStorage.getItem('staySettings')||'{}');}catch(e){} Object.assign(o,{sort:st.sort,maxPrice:st.maxPrice,showExcluded:st.showExcluded}); saveStaySettings(o); }
+  st.maxDist=+document.getElementById('stayDist')?.value||st.maxDist||3;
+  { let o={}; try{o=JSON.parse(localStorage.getItem('staySettings')||'{}');}catch(e){} Object.assign(o,{sort:st.sort,maxPrice:st.maxPrice,showExcluded:st.showExcluded,maxDist:st.maxDist}); saveStaySettings(o); }
   let places, hid=hidden(), cachedAt=null, webMap=null;
   if(st.script){
     if(!st.pin){ out.innerHTML='<div class="hint">Enter the backend PIN in Settings.</div>'; return; }
     out.innerHTML='<div class="hint">Asking the backend (cached results come back instantly)…</div>';
     try{
-      const j=await backend({action:'search',day:d.id,areaLabel:area.label,q:area.q,lat:area.lat,lng:area.lng,r:area.r,city:cfg.city,minRating:st.minRating,minReviews:minReviews,terms:st.terms,refresh:force?'1':'0'},st);
+      const j=await backend({action:'search',day:d.id,areaLabel:area.label,q:area.q,lat:area.lat,lng:area.lng,r:area.r,city:cfg.city,minRating:st.minRating,minReviews:minReviews,maxDist:st.maxDist,terms:st.terms,refresh:force?'1':'0'},st);
       places=j.rows; cachedAt=j.cachedAt; hid=new Set(j.hidden||[]); webMap=true;
     }catch(e){ out.innerHTML='<div class="hint">'+esc(e.message)+'</div>'; return; }
   }else{
@@ -936,7 +939,7 @@ async function runStay(d,force){
   let rows=places.map(r=>Object.assign({},r,{price:priceBand[r.price]||r.price||''}));
   rows.forEach(r=>{ r.dist=(r.lat&&r.lng)?distKm(area.lat,area.lng,r.lat,r.lng):null; });
   const excluded=[];
-  rows=rows.filter(r=>{ if(hid.has(r.id)){excluded.push({r,why:'hidden by you'});return false;} if(r.count<minReviews){excluded.push({r,why:r.count+' reviews, below '+minReviews});return false;} if(r.rating<st.minRating){excluded.push({r,why:'score '+r.rating});return false;} return true; });
+  rows=rows.filter(r=>{ if(hid.has(r.id)){excluded.push({r,why:'hidden by you'});return false;} if(r.count<minReviews){excluded.push({r,why:r.count+' reviews, below '+minReviews});return false;} if(r.rating<st.minRating){excluded.push({r,why:'score '+r.rating});return false;} if(r.dist!=null&&r.dist>st.maxDist){excluded.push({r,why:r.dist.toFixed(1)+' km from the area'});return false;} return true; });
   rows.sort((a,b)=>st.sort==='rating'?(b.rating-a.rating||b.count-a.count):(b.count-a.count));
   if(st.results>0) rows=rows.slice(0,st.results+6);
   if(!webMap){
@@ -972,8 +975,7 @@ function render_stay(rows,excluded,cfg,area,st){
       +'<div class="hchk">'+dot(stt)+'<span>'+({clear:'Web: '+(w.baseline||0)+' pages mention this hotel, none with the terms',possible:'Web: '+(w.items?w.items.length:0)+' page'+(w.items&&w.items.length>1?'s':'')+' mention it near the terms, look before booking',unverified:'Web: '+(w.reason==='no web coverage of this hotel'?'almost nothing written about it online':'check failed ('+esc(w.reason||'')+')')+', check Maps reviews yourself',skipped:'Web: not checked'}[stt]||'')+'</span>'
       +(r.greviews?'<span class="gs">Google: '+r.greviews.scanned+' review'+(r.greviews.scanned===1?'':'s')+' scanned, clean</span>':'')+'</div>'
       +'<div class="hact">'
-      +'<a href="'+bookingURL(r.name,cfg,st)+'" class="act book" title="Open this hotel in the Booking app (dates and party applied; the app ignores filters)">Booking</a>'
-      +'<a href="'+bookingURL(r.name,cfg,st)+'" data-web class="act bookweb" title="Open in the browser with dates, party, twin beds, score 8+ and the price cap applied">web</a>'
+      +'<a href="'+bookingURL(r.name,cfg,st)+'" class="act book" title="Tap: Booking app with dates and party. Long-press → open in incognito tab: browser with twin beds, 8+ and the price cap applied">Booking</a>'
       +'<a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'
       +'<a target="_blank" rel="noopener" href="'+reportsURL(r.name,cfg.city,st)+'" class="act">Web</a>'
       +(w.items&&w.items.length&&stt==='possible'?'<a target="_blank" rel="noopener" href="'+esc(w.items[0].link)+'" class="act warn" title="'+esc(w.items[0].title)+'">mention</a>':'')
@@ -986,7 +988,7 @@ function render_stay(rows,excluded,cfg,area,st){
   });
   if(st.showExcluded) excluded.forEach(e=>{ const r=e.r; h+='<div class="hcard ex"><div class="hnum">–</div><div class="hbody"><div class="hname">'+esc(r.name)+'</div><div class="hstats"><b>'+r.rating.toFixed(1)+'</b><span class="star">★</span><span>'+r.count+'</span></div><div class="hchk"><span class="why">Excluded: '+esc(e.why)+'</span></div><div class="hact">'+(e.items?'<a target="_blank" rel="noopener" href="'+esc(e.items[0].link)+'" class="act warn">'+esc(e.items[0].title.slice(0,40))+'…</a>':'')+(e.gquote?'<span class="act warn">Google review</span>':'')+'<a target="_blank" rel="noopener" href="'+r.maps+'" class="act">Maps</a>'+(e.why==='hidden by you'?'<button class="act" data-unhide="'+r.id+'">unhide</button>':'')+'</div></div></div>'; });
   h+='</div>';
-  h+='<div class="hkey"><span>'+dot('clear')+'clear</span><span>'+dot('possible')+'possible</span><span>'+dot('unverified')+'unverified</span><span class="dim">· flagged by a Google review or the web are excluded</span></div>';
+  h+='<div class="hkey"><span>'+dot('clear')+'clear</span><span>'+dot('possible')+'possible</span><span>'+dot('unverified')+'unverified</span><span class="dim">· flagged ones are excluded · long-press Booking → incognito tab for the filtered browser view</span></div>';
   out.innerHTML=h;
   if(rows.some(r=>r.lat)){ map.fitBounds(L.latLngBounds(rows.filter(r=>r.lat).map(r=>[r.lat,r.lng])).pad(0.3),{maxZoom:15}); }
   out.querySelectorAll('[data-hide]').forEach(b=>b.addEventListener('click',async()=>{ if(st.script){ try{ await backend({action:'hide',id:b.dataset.hide,name:(rows.find(r=>r.id===b.dataset.hide)||{}).name||''},st);}catch(e){} } else { const h=hidden();h.add(b.dataset.hide);setHidden(h); } runStay(current_day(),false); }));
@@ -1068,7 +1070,7 @@ function render(d){
   dayEl.querySelector('[data-next]')?.addEventListener('click',()=>select(days[i+1].id));
   dayEl.querySelector('[data-ov]')?.addEventListener('click',()=>select('overview'));
   document.getElementById('stayGo')?.addEventListener('click',()=>runStay(d,false));
-  { const cfg=stayCfg(d); const sel=document.getElementById('stayArea'); const setA=()=>{ if(!cfg||!sel) return; const st=staySettings(); const u=bookingAreaURL(cfg.areas[+sel.value],cfg,st); const a1=document.getElementById('bkAreaApp'), a2=document.getElementById('bkAreaWeb'), a3=document.getElementById('bkAreaX'); if(a1) a1.href=u; if(a2) a2.href=u; if(a3) a3.href=bookingAppURL(cfg.areas[+sel.value].label.split(',')[0]+', '+cfg.city,cfg,st); }; setA(); sel?.addEventListener('change',setA); }
+  { const cfg=stayCfg(d); const sel=document.getElementById('stayArea'); const setA=()=>{ if(!cfg||!sel) return; const st=staySettings(); const u=bookingAreaURL(cfg.areas[+sel.value],cfg,st); const a1=document.getElementById('bkAreaApp'); if(a1) a1.href=u; }; setA(); sel?.addEventListener('change',setA); document.getElementById('stayDist')?.addEventListener('change',()=>{ const o=staySettings(); o.maxDist=+document.getElementById('stayDist').value||3; let p={}; try{p=JSON.parse(localStorage.getItem('staySettings')||'{}');}catch(e){} p.maxDist=o.maxDist; saveStaySettings(p); setA(); }); }
   document.getElementById('stayRefresh')?.addEventListener('click',()=>runStay(d,true));
   dayEl.querySelectorAll('[data-inc]').forEach(cb=>cb.addEventListener('change',()=>{
     const set=defaultChosen(d); cb.checked?set.add(cb.dataset.inc):set.delete(cb.dataset.inc); refreshGm(d);
