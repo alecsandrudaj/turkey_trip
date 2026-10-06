@@ -154,6 +154,10 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .ovday .l3 span{display:inline-flex;align-items:center;gap:5px}
 .ov .keys{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:grid;gap:6px}
 .ov .keys span{display:inline-flex;align-items:center;gap:8px}
+.soc{display:inline-flex;gap:6px;margin-left:8px;vertical-align:1px}
+.soc a{font-size:11px;color:var(--ink-3);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:1px 7px;white-space:nowrap}
+.soc a:hover{color:var(--route);border-color:var(--route)}
+.pp-links .soc{margin-left:0}
 .inc{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:11.5px;color:var(--ink-3);vertical-align:1px;cursor:pointer;white-space:nowrap}
 .inc input{margin:0;accent-color:var(--route);width:13px;height:13px}
 .gm{margin-top:16px;padding:12px 14px;border-radius:10px;background:var(--bg);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -173,7 +177,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 12</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 14</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -479,6 +483,31 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const tierName={m:'must-see',w:'worth it',o:'optional',n:''};
 const gmPoint=k=>{const c=C[k];return c[1].toFixed(5)+','+c[0].toFixed(5);};
 const gmSearch=k=>'https://www.google.com/maps/search/?api=1&query='+gmPoint(k);
+// social lookups: TikTok search by name, Instagram by hashtag
+const socialName={
+  'Ölüdeniz Blue Lagoon':'Ölüdeniz','Sunset at the lagoon':'Ölüdeniz','Paspatur and the fish market':'Fethiye Paspatur','Myra, Demre':'Myra Demre',
+  'Kekova sunken city and Kaleköy':'Kekova','Olympos / Çıralı':'Çıralı Olympos','Kaleiçi':'Antalya Kaleiçi','Alanya Castle and Red Tower':'Alanya Kalesi',
+  'Mamure Castle, Anamur':'Mamure Kalesi','The D400 coast road':'Anamur sahil yolu','Breakfast with Maiden\u2019s Castle':'Kızkalesi','Heaven & Hell sinkholes':'Cennet Cehennem Silifke',
+  'Adana, kebab lunch':'Adana kebap','Şanlıurfa Archaeology Museum':'Şanlıurfa Arkeoloji Müzesi','Urfa Castle (if the museum is closed)':'Urfa Kalesi','Haleplibahçe Mosaic Museum':'Haleplibahçe',
+  'Urfa bazaar and dinner':'Urfa çarşı','Sıra gecesi':'Urfa sıra gecesi','Karahantepe instead':'Karahantepe','Lunch in Siverek':'Siverek','Nissibi Bridge over the Atatürk Dam lake':'Nissibi Köprüsü',
+  'Nemrut Dağı sunset, west terrace':'Nemrut Dağı','Nemrut sunrise, east terrace (breaks the 10:00 rule)':'Nemrut Dağı','Halfeti and Rumkale':'Halfeti','Zeugma archaeological site, Belkıs':'Zeugma Belkıs',
+  'Bakırcılar Çarşısı and Zincirli Bedesten':'Gaziantep Bakırcılar Çarşısı','Gaziantep food evening':'Gaziantep yemek','Culinary Museum (Emine Göğüş)':'Emine Göğüş Mutfak Müzesi',
+  'Beyran at Metanet, or katmer at Orkide / Zekeriya Usta':'Gaziantep beyran katmer','Zeugma Mosaic Museum':'Zeugma Mozaik Müzesi','Lunch in Kahramanmaraş':'Maraş dondurma',
+  'Red Valley (Kızılçukur) viewpoint':'Kızılçukur Kapadokya','Love Valley viewpoint':'Love Valley Cappadocia','Balloons from the hotel terrace':'Cappadocia balloons','Balloon flight':'Cappadocia balloon ride',
+  'Uçhisar Castle first, if skipped Wednesday':'Uçhisar Kalesi','Uçhisar Castle':'Uçhisar Kalesi','Göreme Open-Air Museum':'Göreme Açık Hava Müzesi','Çavuşin and Rose Valley':'Rose Valley Cappadocia',
+  'Pigeon Valley walk':'Pigeon Valley Cappadocia','Paşabağ and Devrent here instead of 16:45':'Paşabağ','Paşabağ and Devrent':'Paşabağ','Lunch in Ürgüp or Ortahisar':'Ürgüp','Mustafapaşa (Sinasos)':'Mustafapaşa Kapadokya',
+  'Sunset from Göreme viewpoint or Love Valley':'Göreme sunset','Turkish night':'Cappadocia Turkish night','Sultanhanı Caravanserai':'Sultanhanı Kervansaray','Kaymaklı underground city':'Kaymaklı',
+  'Lunch: etli ekmek':'Konya etli ekmek','Mevlana Museum':'Mevlana Müzesi','Karatay Medrese':'Karatay Medresesi','İnce Minare Medrese':'İnce Minareli Medrese','Alaeddin Hill':'Alaeddin Tepesi Konya',
+  'Sema, the whirling dervish ceremony':'Konya sema','Kadıköy market streets':'Kadıköy çarşı','Galata Tower area':'Galata Kulesi','Sunset from Galata Bridge':'Galata Köprüsü','Bosphorus by public ferry':'Bosphorus ferry',
+  'Hagia Sophia':'Ayasofya','Blue Mosque':'Sultanahmet Camii','Basilica Cistern':'Yerebatan Sarnıcı','Süleymaniye Mosque':'Süleymaniye Camii','Istanbul Archaeology Museums':'İstanbul Arkeoloji Müzeleri',
+  'Turkish and Islamic Arts Museum':'Türk ve İslam Eserleri Müzesi','Grand Bazaar and lunch':'Kapalıçarşı','Topkapı Palace instead of Cistern + Bazaar':'Topkapı Sarayı','Spice Bazaar and Eminönü':'Mısır Çarşısı',
+  'Antalya Archaeology Museum':'Antalya Müzesi','Lunch near Korkuteli':'Korkuteli gözleme','Lunch in Adıyaman':'Adıyaman','Lunch in Halfeti':'Halfeti','Gaziantep bypass':'Gaziantep','Xanthos and Letoon':'Xanthos','Göbekli Tepe':'Göbekli Tepe','Patara':'Patara plajı','Kaş':'Kaş Antalya','Side':'Side Antalya','Aspendos':'Aspendos','Perge':'Perge Antalya'
+};
+const socialQ=it=>socialName[it.name]||it.name.replace(/,.*$|\(.*$| instead.*$| here.*$/,'').trim();
+const tiktokURL=q=>'https://www.tiktok.com/search?q='+encodeURIComponent(q);
+const igTag=q=>q.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ş/g,'s').replace(/ç/g,'c').replace(/ö/g,'o').replace(/ü/g,'u').replace(/İ/g,'i').replace(/[^A-Za-z0-9]/g,'').toLowerCase();
+const instaURL=q=>'https://www.instagram.com/explore/tags/'+igTag(q)+'/';
+const socialHTML=it=>{const q=socialQ(it);return '<span class="soc"><a target="_blank" rel="noopener" href="'+tiktokURL(q)+'" title="TikTok: '+esc(q)+'">TikTok</a><a target="_blank" rel="noopener" href="'+instaURL(q)+'" title="Instagram #'+igTag(q)+'">Instagram</a></span>';};
 function copyText(t,btn){ try{ navigator.clipboard.writeText(t).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1200);} }); }catch(e){ prompt('Coordinates',t); } }
 // which items are included in a day's exported route: ids like 'fri9-2-p' (slot 2 primary) or 'fri9-2-a1' (slot 2, alternative 1)
 const chosen={};
@@ -562,7 +591,7 @@ const wpLabels={korkuteli:'Korkuteli',kalkan:'Kalkan',finike:'Finike',kumluca:'K
 const seen=new Set();
 days.forEach(d=>d.route.forEach(k=>{
   if(nightKeys.has(k)||seen.has(k)||!wpLabels[k]) return; seen.add(k);
-  L.circleMarker(LL(k),{radius:3.5,stroke:false,fillColor:'#4D5A6A',fillOpacity:.9}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]}).bindPopup('<div class="pp-name">'+wpLabels[k]+'</div><div class="pp-alt">town on the route, no stop planned</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(k)+'">Open in Google Maps</a></div>');
+  L.circleMarker(LL(k),{radius:3.5,stroke:false,fillColor:'#4D5A6A',fillOpacity:.9}).addTo(map).bindTooltip(wpLabels[k],{direction:'top',offset:[0,-4]}).bindPopup('<div class="pp-name">'+wpLabels[k]+'</div><div class="pp-alt">town on the route, no stop planned</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(k)+'">Open in Google Maps</a></div><div class="pp-links">'+socialHTML({name:wpLabels[k]})+'</div>');
 }));
 
 // night stops
@@ -571,7 +600,7 @@ const stops={};
 nights.forEach(([k,label,n,dayId])=>{
   const m=L.marker(LL(k),{icon:L.divIcon({className:'',html:'<div class="nightpin" id="np-'+k+'">'+n+'</div>',iconSize:[26,26],iconAnchor:[13,13]}),zIndexOffset:900,title:label}).addTo(map);
   m.bindTooltip(label,{direction:'top',offset:[0,-14]});
-  m.bindPopup('<div class="pp-name">'+label+'</div><div class="pp-alt">night stop</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(k)+'">Open in Google Maps</a><button data-copy="'+gmPoint(k)+'">Copy coordinates</button></div>');
+  m.bindPopup('<div class="pp-name">'+label+'</div><div class="pp-alt">night stop</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(k)+'">Open in Google Maps</a><button data-copy="'+gmPoint(k)+'">Copy coordinates</button></div><div class="pp-links">'+socialHTML({name:label.replace(' ✈','').replace('Karadut / Nemrut','Karadut').replace('Antalya airport','Antalya')})+'</div>');
   m.on('click',()=>select(dayId));
   m.on('popupopen',e=>{const c=e.popup.getElement().querySelector('[data-copy]');c&&c.addEventListener('click',()=>copyText(c.dataset.copy,c));});
   stops[k]=m;
@@ -593,6 +622,7 @@ days.forEach(d=>{
       if(it.d) pp+='<div class="pp-d">'+esc(it.d)+(it.dur?' <span style="color:var(--ink-3)">('+esc(it.dur)+')</span>':'')+'</div>';
       if(it.cost) pp+='<div class="pp-cost">'+esc(it.cost)+'</div>';
       pp+='<div class="pp-links"><a target="_blank" rel="noopener" href="'+gmSearch(it.at)+'">Open in Google Maps</a><button data-copy="'+gmPoint(it.at)+'">Copy coordinates</button><a href="#" data-go="'+d.id+'">Open '+esc(d.tab[0])+' →</a></div>';
+      pp+='<div class="pp-links">'+socialHTML(it)+'</div>';
       mk.bindPopup(pp);
       mk.on('popupopen',e=>{const el=e.popup.getElement();
         const a=el.querySelector('[data-go]');a&&a.addEventListener('click',ev=>{ev.preventDefault();select(d.id);map.closePopup();});
@@ -638,6 +668,7 @@ function itemHTML(it,alt,incId,checked){
   let h='<div class="item '+tier+'">';
   if(tier!=='n') h+='<i class="ind '+tier+(alt?' alt':'')+'"></i>';
   h+='<span class="name">'+esc(it.name)+'</span>';
+  if(tier!=='n'||it.at) h+=socialHTML(it);
   if(incId&&it.at) h+='<label class="inc" title="Include in the exported Google Maps route"><input type="checkbox" data-inc="'+incId+'" '+(checked?'checked':'')+'> route</label>';
   if(it.dur) h+='<span class="dur">'+esc(it.dur)+'</span>';
   if(it.d) h+='<div class="d">'+esc(it.d)+'</div>';
