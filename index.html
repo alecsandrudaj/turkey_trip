@@ -169,6 +169,34 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 .gm small{flex:1 1 100%;font-size:11.5px;color:var(--ink-3)}
 .pp-links{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
 .pp-links a,.pp-links button{font-size:12.5px;color:var(--route);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
+.settings{padding:8px 16px;border-bottom:1px solid var(--line);font-size:13px;background:var(--bg)}
+.settings summary{cursor:pointer;color:var(--ink-2)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px 12px;padding:10px 0 4px}
+.sgrid label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-3)}
+.sgrid input{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+.sgrid .wide{grid-column:1/-1}
+.btn{border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--ink);background:var(--panel)}
+.btn.primary{background:var(--route);border-color:var(--route);color:var(--tab-ink)}
+.stayx{margin:-4px 0 16px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px}
+.stayx summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.stayx .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 6px}
+.stayx .row label{display:flex;gap:6px;align-items:center;color:var(--ink-2);font-size:13px}
+.stayx select{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 6px;max-width:260px}
+.hint{font-size:12.5px;color:var(--ink-3);margin:6px 0}
+.hotel{padding:9px 0;border-top:1px solid var(--line)}
+.hl1{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hmeta{color:var(--ink-2);font-size:13px;white-space:nowrap}
+.hl2{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.hl3{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.hl3 a,.hl3 button{font-size:12.5px;color:var(--route);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--panel)}
+.ok{color:var(--worth)} .dim{color:var(--ink-3)}
+.excl{margin-top:10px;font-size:13px}
+.excl summary{cursor:pointer;color:var(--ink-2)}
+.exrow{padding:6px 0;border-top:1px solid var(--line)}
+.exhit{margin:4px 0 0 10px;font-size:12.5px}
+.exhit a{color:var(--route)}
+.exrow button{font-size:12px;color:var(--route);background:none;border:1px solid var(--line);border-radius:999px;padding:1px 8px;margin-left:6px}
+.hotelpin{width:20px;height:20px;border-radius:5px;background:var(--worth);color:#fff;font:600 11px/20px var(--sans);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
 .nav button{border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13.5px;color:var(--ink)}
 .nav button:disabled{opacity:.4;cursor:default}
@@ -179,7 +207,7 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
 <body>
 <div class="app">
   <header>
-    <h1>Turkey by car<small>8 – 18 October 2026 · build 20</small></h1>
+    <h1>Turkey by car<small>8 – 18 October 2026 · build 21</small></h1>
     <div class="legend"><span><i class="ind m"></i>must-see</span><span><i class="ind w"></i>worth it</span><span><i class="ind o"></i>optional</span><span><i class="ind m alt"></i><i class="ind w alt"></i><i class="ind o alt"></i>hollow = alternative</span><span><i class="ind night">3</i>night stop</span></div>
   </header>
 
@@ -189,12 +217,22 @@ header h1 small{font-family:var(--sans);font-weight:400;font-size:13px;color:var
   </div>
 
   <div class="panel">
+    <div id="settingsHost"></div>
     <nav class="tabs" id="tabs" aria-label="Days"></nav>
     <section class="day" id="day"></section>
   </div>
 </div>
 
 <script>
+/* ---------- accommodation search config ----------
+   Paste your keys here (both restricted to https://alecsandrudaj.github.io/* in Google Cloud):
+   GOOGLE_API_KEY: Places API (New) + Custom Search API enabled
+   CSE_ID: Programmable Search Engine id (search the whole web; add booking.com, tripadvisor.com, google.com as priority sites) */
+const GOOGLE_API_KEY='AIzaSyCtozX1LIT5UJHZ2hrESWBGBLmXG9fHL3k';
+const CSE_ID='b029a9e28305a4069';
+const STAY_DEFAULTS={minRating:4.0,minReviews:200,adults:4,rooms:2,maxPrice:150,results:10,
+  terms:'bed bugs, bedbugs, tahtakurusu, tahta kurusu, kene, tick bites, böcek, beetles, hamam böceği, cockroach, pire, fleas, bites'};
+
 /* ---------- itinerary ---------- */
 // coordinates as [lon,lat]
 const C = {
@@ -464,6 +502,41 @@ const days = [
   buffer:'Buffer 45 min at the airport end. If the Hagia Sophia queue is bad, do the Blue Mosque first, before 11:00, and come back.'}
 ];
 
+/* ---------- where to sleep: search areas per night ---------- */
+// dates are check-in / check-out for Booking links; areas are the neighbourhoods from the itinerary
+const stayAreas={
+  thu8:{city:'Fethiye',checkin:'2026-10-08',checkout:'2026-10-09',areas:[
+    {label:'Paspatur, old town',q:'hotels Paspatur Fethiye',lat:36.622,lng:29.113,r:1200},
+    {label:'Karagözler, marina side',q:'hotels Karagözler Fethiye',lat:36.628,lng:29.102,r:1500},
+    {label:'Çalış beach',q:'hotels Çalış Fethiye',lat:36.660,lng:29.100,r:2000}]},
+  fri9:{city:'Antalya',checkin:'2026-10-09',checkout:'2026-10-10',areas:[
+    {label:'Kaleiçi, old town',q:'hotels Kaleiçi Antalya',lat:36.885,lng:30.705,r:900},
+    {label:'Konyaaltı, sea front',q:'hotels Konyaaltı Antalya',lat:36.870,lng:30.650,r:2500}]},
+  sat10:{city:'Kızkalesi',checkin:'2026-10-10',checkout:'2026-10-11',minReviews:30,areas:[
+    {label:'Kızkalesi seafront',q:'hotels Kızkalesi Mersin',lat:36.456,lng:34.148,r:2000},
+    {label:'Narlıkuyu cove',q:'hotels Narlıkuyu Silifke',lat:36.448,lng:34.115,r:2000}]},
+  sun11:{city:'Şanlıurfa',checkin:'2026-10-11',checkout:'2026-10-12',areas:[
+    {label:'Old town, around Balıklıgöl',q:'hotels Balıklıgöl Şanlıurfa',lat:37.150,lng:38.785,r:1200},
+    {label:'Karaköprü, new town',q:'hotels Karaköprü Şanlıurfa',lat:37.185,lng:38.800,r:3000}]},
+  mon12:{city:'Karadut',checkin:'2026-10-12',checkout:'2026-10-13',minReviews:20,areas:[
+    {label:'Karadut village, below the summit',q:'pension hotel Karadut Nemrut',lat:37.9316,lng:38.7637,r:3000},
+    {label:'Kâhta town (1 h from summit)',q:'hotels Kâhta Adıyaman',lat:37.785,lng:38.619,r:3000}]},
+  tue13:{city:'Gaziantep',checkin:'2026-10-13',checkout:'2026-10-14',areas:[
+    {label:'Şahinbey centre, castle and bazaar',q:'hotels Gaziantep castle bazaar',lat:37.064,lng:37.382,r:1200},
+    {label:'Gazimuhtarpaşa, modern hotels',q:'hotels Gazimuhtarpaşa Bulvarı Gaziantep',lat:37.060,lng:37.355,r:2000}]},
+  wed14:{city:'Göreme',checkin:'2026-10-14',checkout:'2026-10-16',areas:[
+    {label:'Göreme, cave hotels',q:'cave hotel Göreme',lat:38.643,lng:34.829,r:1500},
+    {label:'Uçhisar, quieter, best panorama',q:'cave hotel Uçhisar',lat:38.630,lng:34.805,r:1500},
+    {label:'Ürgüp, proper town',q:'hotels Ürgüp',lat:38.630,lng:34.912,r:2000}]},
+  thu15:{same:'wed14'},
+  fri16:{city:'Konya',checkin:'2026-10-16',checkout:'2026-10-17',areas:[
+    {label:'Mevlana quarter',q:'hotels Mevlana Konya',lat:37.871,lng:32.504,r:1200},
+    {label:'Alaeddin hill, city centre',q:'hotels Alaeddin Konya',lat:37.874,lng:32.492,r:1200}]},
+  sat17:{city:'Istanbul',checkin:'2026-10-17',checkout:'2026-10-18',areas:[
+    {label:'Sultanahmet, walk to the sights',q:'hotels Sultanahmet Istanbul',lat:41.007,lng:28.977,r:1000},
+    {label:'Karaköy / Galata, food and evening',q:'hotels Karaköy Galata Istanbul',lat:41.024,lng:28.975,r:1000}]}
+};
+
 /* ---------- map ---------- */
 const map=L.map('map',{zoomControl:true,attributionControl:true,scrollWheelZoom:true}).setView([37.6,34.5],6);
 const esriAttr='Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors, and the GIS User Community';
@@ -718,6 +791,135 @@ function mapSelect(id){
   const pts=d.route.concat(d.climb||[]).map(LL).concat(poiMarkers.filter(p=>p.day===id).map(p=>p.marker.getLatLng()));
   if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(id==='thu15'||id==='sun18'?0.25:0.12),{animate:booted,maxZoom:id==='sun18'?15:13});
 }
+/* ---------- accommodation search ---------- */
+const hotelLayer=L.layerGroup().addTo(map);
+function staySettings(){
+  let o={}; try{ o=JSON.parse(localStorage.getItem('staySettings')||'{}'); }catch(e){}
+  const key=(o.key&&o.key.trim())||(GOOGLE_API_KEY.startsWith('PASTE')?'':GOOGLE_API_KEY);
+  const cse=(o.cse&&o.cse.trim())||(CSE_ID.startsWith('PASTE')?'':CSE_ID);
+  return Object.assign({},STAY_DEFAULTS,o,{key,cse});
+}
+function saveStaySettings(o){ try{ localStorage.setItem('staySettings',JSON.stringify(o)); }catch(e){} }
+const hidden=()=>{ try{ return new Set(JSON.parse(localStorage.getItem('hiddenHotels')||'[]')); }catch(e){ return new Set(); } };
+const setHidden=set=>{ try{ localStorage.setItem('hiddenHotels',JSON.stringify([...set])); }catch(e){} };
+const cacheGet=(k,maxAge)=>{ try{ const v=JSON.parse(localStorage.getItem(k)||'null'); if(v&&Date.now()-v.t<maxAge) return v.d; }catch(e){} return null; };
+const cacheSet=(k,d)=>{ try{ localStorage.setItem(k,JSON.stringify({t:Date.now(),d})); }catch(e){} };
+const termList=st=>st.terms.split(',').map(t=>t.trim()).filter(Boolean);
+const priceBand={PRICE_LEVEL_INEXPENSIVE:'€',PRICE_LEVEL_MODERATE:'€€',PRICE_LEVEL_EXPENSIVE:'€€€',PRICE_LEVEL_VERY_EXPENSIVE:'€€€€'};
+const distKm=(a,b,c,d)=>{const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,h=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.asin(Math.sqrt(h));};
+
+async function placesSearch(area,st){
+  const body={textQuery:area.q,includedType:'lodging',minRating:st.minRating,pageSize:20,languageCode:'en',
+    locationBias:{circle:{center:{latitude:area.lat,longitude:area.lng},radius:area.r}}};
+  const r=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':st.key,
+    'X-Goog-FieldMask':'places.id,places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.googleMapsUri,places.location,places.primaryTypeDisplayName,places.websiteUri,places.shortFormattedAddress'},body:JSON.stringify(body)});
+  if(!r.ok){ const t=await r.text(); throw new Error('Places '+r.status+': '+t.slice(0,160)); }
+  return (await r.json()).places||[];
+}
+async function webCheck(name,city,st){
+  if(!st.cse) return null;
+  const k='web:'+name; const c=cacheGet(k,7*24*3600e3); if(c) return c;
+  const q='"'+name+'" '+city+' ('+termList(st).map(t=>t.includes(' ')?'"'+t+'"':t).join(' OR ')+')';
+  const r=await fetch('https://www.googleapis.com/customsearch/v1?key='+encodeURIComponent(st.key)+'&cx='+encodeURIComponent(st.cse)+'&num=5&q='+encodeURIComponent(q));
+  if(!r.ok) return {error:r.status};
+  const j=await r.json(); const items=(j.items||[]).map(i=>({title:i.title,link:i.link,snippet:i.snippet}));
+  const d={hits:items.length,items}; cacheSet(k,d); return d;
+}
+const bookingURL=(name,cfg,st)=>'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(name+', '+cfg.city)+'&checkin='+cfg.checkin+'&checkout='+cfg.checkout
+  +'&group_adults='+st.adults+'&no_rooms='+st.rooms+'&group_children=0&selected_currency=EUR&nflt='+encodeURIComponent('price=EUR-min-'+st.maxPrice+'-1;fc=2;tdb=3');
+const reportsURL=(name,city,st)=>'https://www.google.com/search?q='+encodeURIComponent('"'+name+'" '+city+' ('+termList(st).slice(0,8).map(t=>t.includes(' ')?'"'+t+'"':t).join(' OR ')+')');
+
+function stayCfg(d){ let c=stayAreas[d.id]; if(c&&c.same) c=stayAreas[c.same]; return c; }
+
+function stayBlock(d){
+  const cfg=stayCfg(d); if(!cfg) return '';
+  const st=staySettings();
+  let h='<details class="stayx" id="stayx"><summary>Where to sleep: find hotels</summary><div class="stayx-body">';
+  h+='<div class="row"><label>Area <select id="stayArea">'+cfg.areas.map((a,i)=>'<option value="'+i+'">'+esc(a.label)+'</option>').join('')+'</select></label>'
+    +'<button class="btn primary" id="stayGo">Search</button><button class="btn" id="stayRefresh" title="Ignore the cached result">Refresh</button></div>';
+  h+='<div class="hint">Score ≥ '+st.minRating+', ≥ '+(cfg.minReviews||st.minReviews)+' reviews'+(cfg.minReviews?' (lowered for this town)':'')+', sorted by review count, top '+st.results+'. Booking opens with '+esc(cfg.checkin)+' → '+esc(cfg.checkout)+', '+st.adults+' adults, '+st.rooms+' rooms, twin beds, ≤ €'+st.maxPrice+'/night, free cancellation.'
+    +(st.key?'':' <b>No API key yet:</b> open Settings above.')+'</div>';
+  h+='<div id="stayOut"></div></div></details>';
+  return h;
+}
+
+async function runStay(d,force){
+  const cfg=stayCfg(d), st=staySettings(), out=document.getElementById('stayOut'); if(!cfg||!out) return;
+  const area=cfg.areas[+document.getElementById('stayArea').value];
+  const minReviews=cfg.minReviews||st.minReviews;
+  if(!st.key){ out.innerHTML='<div class="hint">Add your Google API key in Settings (top of the page) first.</div>'; return; }
+  if(location.protocol==='file:'){ out.innerHTML='<div class="hint">The key is restricted to the hosted page; open the GitHub Pages address to search.</div>'; return; }
+  out.innerHTML='<div class="hint">Searching Google Places…</div>';
+  const ck='places:'+area.q+':'+st.minRating; let places=force?null:cacheGet(ck,24*3600e3);
+  try{
+    if(!places){ places=await placesSearch(area,st); cacheSet(ck,places); }
+  }catch(e){ out.innerHTML='<div class="hint">'+esc(e.message)+'</div>'; return; }
+  const hid=hidden();
+  let rows=places.map(p=>({id:p.id,name:p.displayName?.text||'',rating:p.rating||0,count:p.userRatingCount||0,price:priceBand[p.priceLevel]||'',
+    maps:p.googleMapsUri,lat:p.location?.latitude,lng:p.location?.longitude,type:p.primaryTypeDisplayName?.text||'',site:p.websiteUri,addr:p.shortFormattedAddress||''}));
+  rows.forEach(r=>{ r.dist=(r.lat&&r.lng)?distKm(area.lat,area.lng,r.lat,r.lng):null; });
+  const excluded=[];
+  rows=rows.filter(r=>{ if(hid.has(r.id)){excluded.push({r,why:'hidden by you'});return false;} if(r.count<minReviews){excluded.push({r,why:r.count+' reviews, below '+minReviews});return false;} if(r.rating<st.minRating){excluded.push({r,why:'score '+r.rating});return false;} return true; });
+  rows.sort((a,b)=>b.count-a.count);
+  rows=rows.slice(0,st.results+6); // a few spares in case the web check removes some
+  out.innerHTML='<div class="hint">Checking the web for pest reports…</div>';
+  const checks=await Promise.all(rows.map(r=>webCheck(r.name,cfg.city,st).catch(()=>null)));
+  const passed=[];
+  rows.forEach((r,i)=>{ const w=checks[i]; if(w&&w.hits>0){ excluded.push({r,why:w.hits+' web result'+(w.hits>1?'s':'')+' mention the terms',items:w.items}); } else passed.push(Object.assign(r,{web:w})); });
+  render_stay(passed.slice(0,st.results),excluded,cfg,area,st);
+}
+
+function render_stay(rows,excluded,cfg,area,st){
+  const out=document.getElementById('stayOut');
+  hotelLayer.clearLayers();
+  let h='';
+  if(!rows.length) h+='<div class="hint">Nothing passed the filters here. Lower the review count in Settings or pick another area.</div>';
+  rows.forEach((r,i)=>{
+    h+='<div class="hotel"><div class="hl1"><b>'+(i+1)+'. '+esc(r.name)+'</b><span class="hmeta">'+r.rating.toFixed(1)+' ★ · '+r.count+' reviews'+(r.price?' · '+r.price:'')+(r.dist!=null?' · '+r.dist.toFixed(1)+' km':'')+'</span></div>';
+    h+='<div class="hl2">'+esc(r.type)+(r.addr?' · '+esc(r.addr):'')+(r.web===null?' · <span class="dim">web check skipped</span>':r.web&&r.web.error?' · <span class="dim">web check failed</span>':' · <span class="ok">no web reports</span>')+'</div>';
+    h+='<div class="hl3"><a target="_blank" rel="noopener" href="'+r.maps+'">Maps, check reviews</a><a target="_blank" rel="noopener" href="'+bookingURL(r.name,cfg,st)+'">Booking</a><a target="_blank" rel="noopener" href="'+reportsURL(r.name,cfg.city,st)+'">Reports</a>'+(r.site?'<a target="_blank" rel="noopener" href="'+esc(r.site)+'">Website</a>':'')+'<button data-copyterms>Copy terms</button><button data-hide="'+r.id+'">Hide</button></div></div>';
+    if(r.lat&&r.lng){
+      const m=L.marker([r.lat,r.lng],{icon:L.divIcon({className:'',html:'<div class="hotelpin">'+(i+1)+'</div>',iconSize:[20,20],iconAnchor:[10,10]}),zIndexOffset:700}).addTo(hotelLayer);
+      m.bindPopup('<div class="pp-name">'+esc(r.name)+'</div><div class="pp-d">'+r.rating.toFixed(1)+' ★ · '+r.count+' reviews</div><div class="pp-links"><a target="_blank" rel="noopener" href="'+r.maps+'">Maps</a><a target="_blank" rel="noopener" href="'+bookingURL(r.name,cfg,st)+'">Booking</a></div>');
+    }
+  });
+  if(excluded.length){
+    h+='<details class="excl"><summary>'+excluded.length+' excluded</summary>';
+    excluded.forEach(e=>{ h+='<div class="exrow"><b>'+esc(e.r.name)+'</b> <span class="dim">'+esc(e.why)+'</span>'+(e.items?e.items.slice(0,2).map(it=>'<div class="exhit"><a target="_blank" rel="noopener" href="'+esc(it.link)+'">'+esc(it.title)+'</a><div class="dim">'+esc(it.snippet||'')+'</div></div>').join(''):'')+(e.why==='hidden by you'?' <button data-unhide="'+e.r.id+'">Unhide</button>':'')+'</div>'; });
+    h+='</details>';
+  }
+  h+='<div class="hint">Powered by Google · results cached 24 h · web check searches Booking, TripAdvisor and Google for: '+esc(termList(st).join(', '))+'</div>';
+  out.innerHTML=h;
+  if(rows.some(r=>r.lat)){ map.fitBounds(L.latLngBounds(rows.filter(r=>r.lat).map(r=>[r.lat,r.lng])).pad(0.3),{maxZoom:15}); }
+  out.querySelectorAll('[data-hide]').forEach(b=>b.addEventListener('click',()=>{const h=hidden();h.add(b.dataset.hide);setHidden(h);runStay(current_day(),false);}));
+  out.querySelectorAll('[data-unhide]').forEach(b=>b.addEventListener('click',()=>{const h=hidden();h.delete(b.dataset.unhide);setHidden(h);runStay(current_day(),false);}));
+  out.querySelectorAll('[data-copyterms]').forEach(b=>b.addEventListener('click',()=>copyText(termList(st).slice(0,6).join(' '),b)));
+}
+const current_day=()=>days.find(x=>x.id===current);
+
+/* ---------- settings panel ---------- */
+function settingsHTML(){
+  const st=staySettings();
+  return '<details class="settings" id="settings"><summary>Settings</summary><div class="sgrid">'
+   +'<label>Google API key<input id="sKey" type="password" value="'+esc(st.key)+'" placeholder="paste once per device, or set it in the file"></label>'
+   +'<label>Search engine id (web check)<input id="sCse" value="'+esc(st.cse)+'"></label>'
+   +'<label>Min score<input id="sRating" type="number" step="0.1" min="1" max="5" value="'+st.minRating+'"></label>'
+   +'<label>Min reviews<input id="sReviews" type="number" min="0" value="'+st.minReviews+'"></label>'
+   +'<label>Results<input id="sResults" type="number" min="1" max="20" value="'+st.results+'"></label>'
+   +'<label>Adults<input id="sAdults" type="number" min="1" value="'+st.adults+'"></label>'
+   +'<label>Rooms<input id="sRooms" type="number" min="1" value="'+st.rooms+'"></label>'
+   +'<label>Max €/night<input id="sPrice" type="number" min="10" value="'+st.maxPrice+'"></label>'
+   +'<label class="wide">Blacklist terms (comma separated)<input id="sTerms" value="'+esc(st.terms)+'"></label>'
+   +'<div class="wide"><button class="btn primary" id="sSave">Save</button> <span class="dim">Stored in this browser only.</span></div></div></details>';
+}
+function mountSettings(){
+  const host=document.getElementById('settingsHost'); if(!host) return; host.innerHTML=settingsHTML();
+  document.getElementById('sSave').addEventListener('click',()=>{
+    const o={key:sKey.value.trim(),cse:sCse.value.trim(),minRating:+sRating.value||4,minReviews:+sReviews.value||0,results:+sResults.value||10,adults:+sAdults.value||2,rooms:+sRooms.value||1,maxPrice:+sPrice.value||150,terms:sTerms.value};
+    saveStaySettings(o); const d=current_day(); if(d) render(d); else renderOverview();
+  });
+}
+
 /* ---------- tabs + panel ---------- */
 const tabs=document.getElementById('tabs'), dayEl=document.getElementById('day');
 { const b=document.createElement('button');b.className='tab';b.id='tab-overview';b.setAttribute('role','tab');b.innerHTML='<b>All</b><small>overview</small>';b.addEventListener('click',()=>select('overview'));tabs.appendChild(b); }
@@ -745,6 +947,7 @@ function render(d){
   h+='<h2>'+esc(d.title)+'</h2><p class="sub">'+esc(d.sub)+'</p>';
   if(!d.train&&d.route.length>1) h+='<p class="rt" data-rt="'+d.id+'">'+esc(rtText(d.id)||'Measuring the route…')+'</p>';
   if(d.stay) h+='<p class="stay">'+esc(d.stay)+'</p>';
+  h+=stayBlock(d);
   h+='<div class="deadline"><b>Hard deadline.</b> '+esc(d.deadline)+'</div>';
   d.slots.forEach(s=>{
     const set=defaultChosen(d), si=d.slots.indexOf(s);
@@ -765,6 +968,8 @@ function render(d){
   dayEl.querySelector('[data-prev]')?.addEventListener('click',()=>select(days[i-1].id));
   dayEl.querySelector('[data-next]')?.addEventListener('click',()=>select(days[i+1].id));
   dayEl.querySelector('[data-ov]')?.addEventListener('click',()=>select('overview'));
+  document.getElementById('stayGo')?.addEventListener('click',()=>runStay(d,false));
+  document.getElementById('stayRefresh')?.addEventListener('click',()=>runStay(d,true));
   dayEl.querySelectorAll('[data-inc]').forEach(cb=>cb.addEventListener('change',()=>{
     const set=defaultChosen(d); cb.checked?set.add(cb.dataset.inc):set.delete(cb.dataset.inc); refreshGm(d);
   }));
@@ -800,6 +1005,7 @@ function renderOverview(){
 let current=null, booted=false;
 function select(id){
   const d=id==='overview'?null:days.find(x=>x.id===id); if(id!=='overview'&&!d) return; current=id;
+  hotelLayer.clearLayers();
   mapSelect(id);
   tabs.querySelectorAll('.tab').forEach(t=>{const on=t.id==='tab-'+id;t.classList.toggle('active',on);t.setAttribute('aria-selected',on);});
   document.getElementById('tab-'+id)?.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
@@ -818,7 +1024,7 @@ document.addEventListener('keydown',e=>{
 });
 let start='overview';
 // no scroll on first paint
-select(start); booted=true;
+mountSettings(); select(start); booted=true;
 </script>
 </body>
 </html>
